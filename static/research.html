@@ -1,0 +1,280 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Research — CKD Prediction Model &amp; Dataset</title>
+    <meta name="description" content="Explore the dataset, model training methodology, feature analysis, and performance metrics behind the CKD prediction system.">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="/static/css/style.css">
+</head>
+
+<body>
+
+    <!-- NAV -->
+    <nav id="navbar">
+        <div class="nav-content">
+            <a href="/" class="logo"><span class="logo-icon">🩺</span><span>CKD Predict</span></a>
+            <div class="nav-links">
+                <a href="/about-ckd" class="nav-link">About CKD</a>
+                <a href="/how-it-works" class="nav-link">How It Works</a>
+                <a href="/research" class="nav-link active">Research</a>
+                <button id="theme-toggle" aria-label="Toggle dark mode">
+                    <svg class="icon-sun" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                        <circle cx="12" cy="12" r="5" />
+                        <path d="M12 1v2M12 21v2M4.22 4.22l1.42 1.42M18.36 18.36l1.42 1.42M1 12h2M21 12h2M4.22 19.78l1.42-1.42M18.36 5.64l1.42-1.42" />
+                    </svg>
+                    <svg class="icon-moon" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                        <path d="M21 12.79A9 9 0 1111.21 3 7 7 0 0021 12.79z" />
+                    </svg>
+                </button>
+            </div>
+        </div>
+    </nav>
+
+    <main class="page-content">
+
+        <!-- PAGE HERO -->
+        <section class="page-hero">
+            <div class="container">
+                <span class="section-badge">Data Science</span>
+                <h1>Research &amp; Methodology</h1>
+                <p class="page-hero-desc">A deep dive into the UCI CKD dataset, model training process, feature analysis, and performance benchmarks.</p>
+            </div>
+        </section>
+
+        <!-- DATASET -->
+        <section class="section">
+            <div class="container">
+                <div class="content-block">
+                    <h2>📊 The UCI CKD Dataset</h2>
+                    <p>The model is trained on the <strong>Chronic Kidney Disease dataset</strong> from the UCI Machine Learning Repository, one of the most widely used benchmark datasets in medical ML research.</p>
+                    <div class="stats-grid" style="margin-top: 24px;">
+                        <div class="stat-card">
+                            <div class="stat-card-number">400</div>
+                            <div class="stat-card-label">Patient Records</div>
+                            <p class="stat-card-desc">400 patient records collected from Apollo Hospitals over a 2-month period in 2015.</p>
+                        </div>
+                        <div class="stat-card">
+                            <div class="stat-card-number">24</div>
+                            <div class="stat-card-label">Biomarker Features</div>
+                            <p class="stat-card-desc">11 numeric features and 13 categorical features covering blood, urine, and clinical indicators.</p>
+                        </div>
+                        <div class="stat-card">
+                            <div class="stat-card-number">250 / 150</div>
+                            <div class="stat-card-label">CKD / Not CKD Split</div>
+                            <p class="stat-card-desc">Binary classification with 250 CKD positive and 150 not-CKD samples.</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- 24 FEATURES -->
+        <section class="section section-alt">
+            <div class="container">
+                <div class="section-header">
+                    <h2>🔬 The 24 Biomarkers</h2>
+                    <p>Each patient record includes these medical measurements</p>
+                </div>
+                <div class="features-table-wrap">
+                    <table class="features-table">
+                        <thead>
+                            <tr>
+                                <th>#</th>
+                                <th>Feature</th>
+                                <th>Abbreviation</th>
+                                <th>Type</th>
+                                <th>Normal Range</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr><td>1</td><td>Age</td><td>age</td><td>Numeric</td><td>—</td></tr>
+                            <tr><td>2</td><td>Blood Pressure</td><td>bp</td><td>Numeric</td><td>60–80 mm/Hg</td></tr>
+                            <tr><td>3</td><td>Specific Gravity</td><td>sg</td><td>Numeric</td><td>1.005–1.025</td></tr>
+                            <tr><td>4</td><td>Albumin</td><td>al</td><td>Numeric</td><td>0</td></tr>
+                            <tr><td>5</td><td>Sugar</td><td>su</td><td>Numeric</td><td>0</td></tr>
+                            <tr><td>6</td><td>Red Blood Cells</td><td>rbc</td><td>Categorical</td><td>normal</td></tr>
+                            <tr><td>7</td><td>Pus Cell</td><td>pc</td><td>Categorical</td><td>normal</td></tr>
+                            <tr><td>8</td><td>Pus Cell Clumps</td><td>pcc</td><td>Categorical</td><td>notpresent</td></tr>
+                            <tr><td>9</td><td>Bacteria</td><td>ba</td><td>Categorical</td><td>notpresent</td></tr>
+                            <tr><td>10</td><td>Blood Glucose Random</td><td>bgr</td><td>Numeric</td><td>70–140 mg/dL</td></tr>
+                            <tr><td>11</td><td>Blood Urea</td><td>bu</td><td>Numeric</td><td>7–20 mg/dL</td></tr>
+                            <tr><td>12</td><td>Serum Creatinine</td><td>sc</td><td>Numeric</td><td>0.6–1.2 mg/dL</td></tr>
+                            <tr><td>13</td><td>Sodium</td><td>sod</td><td>Numeric</td><td>135–145 mEq/L</td></tr>
+                            <tr><td>14</td><td>Potassium</td><td>pot</td><td>Numeric</td><td>3.5–5.0 mEq/L</td></tr>
+                            <tr><td>15</td><td>Hemoglobin</td><td>hemo</td><td>Numeric</td><td>12–17.5 g</td></tr>
+                            <tr><td>16</td><td>Packed Cell Volume</td><td>pcv</td><td>Numeric</td><td>36–50</td></tr>
+                            <tr><td>17</td><td>White Blood Cell Count</td><td>wc</td><td>Numeric</td><td>4500–11000 cells/cmm</td></tr>
+                            <tr><td>18</td><td>Red Blood Cell Count</td><td>rc</td><td>Numeric</td><td>4.5–5.5 millions/cmm</td></tr>
+                            <tr><td>19</td><td>Hypertension</td><td>htn</td><td>Categorical</td><td>no</td></tr>
+                            <tr><td>20</td><td>Diabetes Mellitus</td><td>dm</td><td>Categorical</td><td>no</td></tr>
+                            <tr><td>21</td><td>Coronary Artery Disease</td><td>cad</td><td>Categorical</td><td>no</td></tr>
+                            <tr><td>22</td><td>Appetite</td><td>appet</td><td>Categorical</td><td>good</td></tr>
+                            <tr><td>23</td><td>Pedal Edema</td><td>pe</td><td>Categorical</td><td>no</td></tr>
+                            <tr><td>24</td><td>Anemia</td><td>ane</td><td>Categorical</td><td>no</td></tr>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </section>
+
+        <!-- MODEL TRAINING -->
+        <section class="section">
+            <div class="container">
+                <div class="content-block">
+                    <h2>🤖 Model Training Methodology</h2>
+                    <p>The training pipeline follows a rigorous process to ensure maximum accuracy and generalizability:</p>
+
+                    <h3 style="margin-top: 24px;">1. Data Cleaning &amp; Imputation</h3>
+                    <p>The raw dataset contains approximately 20% missing values. A combined imputation strategy is used: <strong>KNN Imputer</strong> for numerical features (considering the 5 nearest neighbors) and <strong>mode imputation</strong> for categorical features. Records with more than 50% missing values are excluded.</p>
+
+                    <h3 style="margin-top: 24px;">2. Feature Encoding</h3>
+                    <p>Categorical features are label-encoded into binary (0/1) or ordinal values. Features like Red Blood Cells ("normal"→1, "abnormal"→0), Pus Cell Clumps ("present"→1, "notpresent"→0), and Hypertension ("yes"→1, "no"→0) are converted to numerical form.</p>
+
+                    <h3 style="margin-top: 24px;">3. Dataset Splitting</h3>
+                    <p>The cleaned dataset is split 80/20 into training and test sets using stratified sampling to maintain the CKD/not-CKD ratio in both partitions.</p>
+
+                    <h3 style="margin-top: 24px;">4. Multi-Model Comparison</h3>
+                    <p>Five different algorithms are trained and compared:</p>
+                    <div class="features-table-wrap" style="margin-top: 16px;">
+                        <table class="features-table">
+                            <thead>
+                                <tr>
+                                    <th>Model</th>
+                                    <th>Accuracy</th>
+                                    <th>Key Strengths</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <tr><td><strong>Random Forest</strong></td><td><strong>~99%</strong></td><td>Best overall accuracy, robust to outliers, handles mixed feature types</td></tr>
+                                <tr><td>Gradient Boosting</td><td>~98%</td><td>Strong sequential learning, excellent on tabular data</td></tr>
+                                <tr><td>SVM (RBF Kernel)</td><td>~97%</td><td>Effective in high-dimensional spaces, good margin separation</td></tr>
+                                <tr><td>Logistic Regression</td><td>~96%</td><td>Fast, interpretable, good baseline for binary classification</td></tr>
+                                <tr><td>K-Nearest Neighbors</td><td>~95%</td><td>Simple, instance-based, effective with normalized features</td></tr>
+                            </tbody>
+                        </table>
+                    </div>
+
+                    <h3 style="margin-top: 24px;">5. Cross-Validation</h3>
+                    <p>5-fold stratified cross-validation is used to assess model stability. The Random Forest model achieves consistent accuracy across all folds, confirming it is not overfitting to any specific data partition.</p>
+
+                    <h3 style="margin-top: 24px;">6. Model Selection &amp; Serialization</h3>
+                    <p>The Random Forest Classifier is selected as the production model based on the highest cross-validated accuracy. It is serialized to disk using <code>joblib</code> as <code>best_ckd_model.pkl</code> and loaded by the Flask server on startup.</p>
+                </div>
+            </div>
+        </section>
+
+        <!-- TOP FEATURES -->
+        <section class="section section-alt">
+            <div class="container">
+                <div class="section-header">
+                    <h2>📈 Top Predictive Features</h2>
+                    <p>Features ranked by their importance in the Random Forest model</p>
+                </div>
+                <div class="top-features-list">
+                    <div class="top-feature-item">
+                        <div class="top-feature-rank">1</div>
+                        <div class="top-feature-info">
+                            <h4>Hemoglobin (hemo)</h4>
+                            <p>The most important predictor. Low hemoglobin levels strongly correlate with CKD due to reduced erythropoietin production by damaged kidneys.</p>
+                        </div>
+                        <div class="top-feature-bar"><div class="top-feature-fill" style="width:100%"></div></div>
+                    </div>
+                    <div class="top-feature-item">
+                        <div class="top-feature-rank">2</div>
+                        <div class="top-feature-info">
+                            <h4>Specific Gravity (sg)</h4>
+                            <p>Measures urine concentration. Damaged kidneys lose the ability to concentrate urine, resulting in lower specific gravity values.</p>
+                        </div>
+                        <div class="top-feature-bar"><div class="top-feature-fill" style="width:85%"></div></div>
+                    </div>
+                    <div class="top-feature-item">
+                        <div class="top-feature-rank">3</div>
+                        <div class="top-feature-info">
+                            <h4>Albumin (al)</h4>
+                            <p>Protein in urine (albuminuria) is an early marker of kidney damage. Higher albumin levels in urine indicate glomerular dysfunction.</p>
+                        </div>
+                        <div class="top-feature-bar"><div class="top-feature-fill" style="width:75%"></div></div>
+                    </div>
+                    <div class="top-feature-item">
+                        <div class="top-feature-rank">4</div>
+                        <div class="top-feature-info">
+                            <h4>Packed Cell Volume (pcv)</h4>
+                            <p>Percentage of blood volume occupied by red blood cells. Lower PCV reflects anemia, a common CKD complication.</p>
+                        </div>
+                        <div class="top-feature-bar"><div class="top-feature-fill" style="width:65%"></div></div>
+                    </div>
+                    <div class="top-feature-item">
+                        <div class="top-feature-rank">5</div>
+                        <div class="top-feature-info">
+                            <h4>Serum Creatinine (sc)</h4>
+                            <p>A key kidney function marker. High serum creatinine indicates the kidneys are not filtering waste effectively.</p>
+                        </div>
+                        <div class="top-feature-bar"><div class="top-feature-fill" style="width:58%"></div></div>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- LIMITATIONS -->
+        <section class="section">
+            <div class="container">
+                <div class="content-block">
+                    <h2>⚖️ Limitations &amp; Ethical Considerations</h2>
+                    <ul class="content-list">
+                        <li><strong>Dataset size:</strong> 400 records is relatively small. Performance may vary on broader, more diverse populations.</li>
+                        <li><strong>Geographic bias:</strong> Data was collected from a single hospital in India and may not generalize to all demographics.</li>
+                        <li><strong>Missing data:</strong> ~20% of original values were imputed, which introduces some uncertainty.</li>
+                        <li><strong>Not a clinical tool:</strong> This system is for educational and screening purposes only. It is NOT a substitute for professional medical diagnosis.</li>
+                        <li><strong>Binary classification:</strong> The model predicts CKD/Not-CKD but does not stage the disease (Stage 1–5).</li>
+                        <li><strong>Temporal limitation:</strong> The model does not account for changes over time — it analyzes a single snapshot of biomarkers.</li>
+                    </ul>
+                </div>
+            </div>
+        </section>
+
+        <!-- REFERENCES -->
+        <section class="section section-alt">
+            <div class="container">
+                <div class="content-block">
+                    <h2>📚 References</h2>
+                    <ol class="content-list">
+                        <li>L. Rubini, P. Soundarapandian, P. Eswaran. "Chronic Kidney Disease." UCI Machine Learning Repository, 2015.</li>
+                        <li>Breiman, L. "Random Forests." Machine Learning, 45(1), 5-32, 2001.</li>
+                        <li>KDIGO 2012 Clinical Practice Guideline for the Evaluation and Management of Chronic Kidney Disease.</li>
+                        <li>National Kidney Foundation. "About Chronic Kidney Disease." <a href="https://www.kidney.org/atoz/content/about-chronic-kidney-disease" target="_blank" rel="noopener">kidney.org</a></li>
+                    </ol>
+                    <div style="margin-top: 32px; text-align: center;">
+                        <a href="/" class="btn btn-primary btn-lg">Back to Home →</a>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+    </main>
+
+    <!-- FOOTER -->
+    <footer id="footer">
+        <div class="container">
+            <div class="footer-content">
+                <p>CKD Prediction System — AI-Powered Kidney Disease Risk Assessment</p>
+                <p class="footer-sub">Dataset: <a href="https://archive.ics.uci.edu/ml/datasets/chronic_kidney_disease" target="_blank" rel="noopener">UCI ML Repository</a> · Model: Random Forest · Python + Flask</p>
+            </div>
+        </div>
+    </footer>
+
+    <script>
+        (function() {
+            const saved = localStorage.getItem("ckd-theme");
+            if (saved === "dark") document.documentElement.setAttribute("data-theme", "dark");
+            document.getElementById("theme-toggle").addEventListener("click", () => {
+                const isDark = document.documentElement.getAttribute("data-theme") === "dark";
+                document.documentElement.setAttribute("data-theme", isDark ? "light" : "dark");
+                localStorage.setItem("ckd-theme", isDark ? "light" : "dark");
+            });
+        })();
+    </script>
+</body>
+</html>

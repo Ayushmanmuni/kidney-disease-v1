@@ -1,0 +1,203 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>How It Works — CKD Prediction System</title>
+    <meta name="description" content="Learn how our AI-powered CKD prediction system works — from data input to machine learning analysis and risk assessment.">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="/static/css/style.css">
+</head>
+
+<body>
+
+    <!-- NAV -->
+    <nav id="navbar">
+        <div class="nav-content">
+            <a href="/" class="logo"><span class="logo-icon">🩺</span><span>CKD Predict</span></a>
+            <div class="nav-links">
+                <a href="/about-ckd" class="nav-link">About CKD</a>
+                <a href="/how-it-works" class="nav-link active">How It Works</a>
+                <a href="/research" class="nav-link">Research</a>
+                <button id="theme-toggle" aria-label="Toggle dark mode">
+                    <svg class="icon-sun" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                        <circle cx="12" cy="12" r="5" />
+                        <path d="M12 1v2M12 21v2M4.22 4.22l1.42 1.42M18.36 18.36l1.42 1.42M1 12h2M21 12h2M4.22 19.78l1.42-1.42M18.36 5.64l1.42-1.42" />
+                    </svg>
+                    <svg class="icon-moon" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                        <path d="M21 12.79A9 9 0 1111.21 3 7 7 0 0021 12.79z" />
+                    </svg>
+                </button>
+            </div>
+        </div>
+    </nav>
+
+    <main class="page-content">
+
+        <!-- PAGE HERO -->
+        <section class="page-hero">
+            <div class="container">
+                <span class="section-badge">System Architecture</span>
+                <h1>How It Works</h1>
+                <p class="page-hero-desc">A detailed look at the AI pipeline — from patient data collection to real-time kidney disease risk prediction using machine learning.</p>
+            </div>
+        </section>
+
+        <!-- OVERVIEW -->
+        <section class="section">
+            <div class="container">
+                <div class="content-block">
+                    <h2>📋 System Overview</h2>
+                    <p>Our CKD Prediction System uses a trained <strong>Random Forest Classifier</strong> to analyze clinical biomarker data and predict the probability of Chronic Kidney Disease. The system is designed for both clinical and educational use and offers two distinct input modes:</p>
+                    <div class="info-cards" style="margin-top: 24px;">
+                        <div class="info-card">
+                            <div class="info-icon">🏥</div>
+                            <h3>Patient Mode</h3>
+                            <p>A simplified 8-question form designed for individuals concerned about their kidney health. Uses medically-informed defaults for the remaining 16 parameters. Provides an easy-to-understand risk explanation.</p>
+                        </div>
+                        <div class="info-card">
+                            <div class="info-icon">👨‍⚕️</div>
+                            <h3>Doctor Mode</h3>
+                            <p>Full clinical interface with all 24 biomarker inputs organized in a 4-step wizard. Provides detailed health score, biomarker health grid, and feature importance chart for in-depth analysis.</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- PIPELINE STEPS -->
+        <section class="section section-alt">
+            <div class="container">
+                <div class="section-header">
+                    <span class="section-badge">Step by Step</span>
+                    <h2>The Prediction Pipeline</h2>
+                </div>
+                <div class="pipeline-flow">
+                    <div class="pipeline-step">
+                        <div class="pipeline-step-num">1</div>
+                        <div class="pipeline-step-content">
+                            <h3>Data Input</h3>
+                            <p>The user enters clinical biomarker values via the web form. In Patient Mode, 8 key parameters are collected; the remaining 16 are filled with population-average defaults. In Doctor Mode, all 24 parameters are entered directly.</p>
+                            <div class="pipeline-detail">
+                                <strong>Parameters include:</strong> Age, Blood Pressure, Specific Gravity, Albumin, Sugar, Blood Glucose, Blood Urea, Serum Creatinine, Sodium, Potassium, Hemoglobin, Packed Cell Volume, WBC Count, RBC Count, and 10 categorical markers.
+                            </div>
+                        </div>
+                    </div>
+                    <div class="pipeline-step">
+                        <div class="pipeline-step-num">2</div>
+                        <div class="pipeline-step-content">
+                            <h3>Data Preprocessing</h3>
+                            <p>The backend receives the 24-parameter JSON payload. Categorical values (e.g., "normal", "abnormal", "present", "not present") are encoded into numerical representations using a predefined encoding map that matches the training data format.</p>
+                            <div class="pipeline-detail">
+                                <strong>Encoding examples:</strong> "normal" → 1, "abnormal" → 0, "present" → 1, "notpresent" → 0, "yes" → 1, "no" → 0
+                            </div>
+                        </div>
+                    </div>
+                    <div class="pipeline-step">
+                        <div class="pipeline-step-num">3</div>
+                        <div class="pipeline-step-content">
+                            <h3>Feature Vector Construction</h3>
+                            <p>The 24 encoded values are assembled into a feature vector in the exact order expected by the trained model. This ordering matches the column order from the original UCI CKD dataset used during training.</p>
+                            <div class="pipeline-detail">
+                                <strong>Feature order (24 features):</strong> age, bp, sg, al, su, rbc, pc, pcc, ba, bgr, bu, sc, sod, pot, hemo, pcv, wc, rc, htn, dm, cad, appet, pe, ane
+                            </div>
+                        </div>
+                    </div>
+                    <div class="pipeline-step">
+                        <div class="pipeline-step-num">4</div>
+                        <div class="pipeline-step-content">
+                            <h3>Random Forest Prediction</h3>
+                            <p>The feature vector is passed to the pre-trained Random Forest Classifier. The model consists of 200 decision trees, each trained on a different bootstrap sample of the training data. Each tree "votes" independently and the final prediction is based on the majority vote.</p>
+                            <div class="pipeline-detail">
+                                <strong>Output:</strong> Binary classification (CKD / Not CKD) + probability score from 0% to 100% based on the proportion of trees voting for each class.
+                            </div>
+                        </div>
+                    </div>
+                    <div class="pipeline-step">
+                        <div class="pipeline-step-num">5</div>
+                        <div class="pipeline-step-content">
+                            <h3>Result Visualization</h3>
+                            <p>The prediction, probability, and input data are sent back to the frontend, where results are displayed using interactive visualizations tailored to the mode:</p>
+                            <ul class="content-list">
+                                <li><strong>Risk gauge</strong> — semicircular meter showing probability (green → yellow → orange → red)</li>
+                                <li><strong>Health score ring</strong> — circular score visualization (100 minus risk percentage)</li>
+                                <li><strong>Health grid</strong> — per-biomarker assessment with normal/warning/critical status (Doctor mode)</li>
+                                <li><strong>Feature importance chart</strong> — horizontal bar chart of which biomarkers most influenced the prediction (Doctor mode)</li>
+                                <li><strong>Patient explanation</strong> — plain-language summary of the risk level and recommended next steps (Patient mode)</li>
+                            </ul>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- TECH STACK -->
+        <section class="section">
+            <div class="container">
+                <div class="section-header">
+                    <h2>🛠️ Technology Stack</h2>
+                </div>
+                <div class="stats-grid">
+                    <div class="stat-card">
+                        <div class="stat-card-number" style="font-size:1.4rem;">Python + Flask</div>
+                        <div class="stat-card-label">Backend</div>
+                        <p class="stat-card-desc">Lightweight Python web framework serving the API and static files. Handles prediction requests and data preprocessing.</p>
+                    </div>
+                    <div class="stat-card">
+                        <div class="stat-card-number" style="font-size:1.4rem;">scikit-learn</div>
+                        <div class="stat-card-label">Machine Learning</div>
+                        <p class="stat-card-desc">Industry-standard ML library. RandomForestClassifier with 200 estimators, trained on UCI CKD dataset with 5-fold cross-validation.</p>
+                    </div>
+                    <div class="stat-card">
+                        <div class="stat-card-number" style="font-size:1.4rem;">Vanilla JS</div>
+                        <div class="stat-card-label">Frontend</div>
+                        <p class="stat-card-desc">No frameworks — pure HTML5, CSS3, and JavaScript for maximum compatibility and zero dependencies. Canvas API for charts.</p>
+                    </div>
+                    <div class="stat-card">
+                        <div class="stat-card-number" style="font-size:1.4rem;">joblib</div>
+                        <div class="stat-card-label">Model Serialization</div>
+                        <p class="stat-card-desc">Efficient Python object persistence. The trained model is serialized to disk and loaded on server startup for instant predictions.</p>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- CTA -->
+        <section class="section section-alt">
+            <div class="container">
+                <div class="content-block" style="text-align:center; max-width: 600px; margin: 0 auto;">
+                    <h2>Ready to Try It?</h2>
+                    <p style="font-size: 1.05rem; line-height: 1.8;">Choose Patient Mode for a quick assessment with just 8 questions, or Doctor Mode for a full clinical analysis with all 24 biomarkers.</p>
+                    <div style="margin-top: 32px;">
+                        <a href="/" class="btn btn-primary btn-lg">Start Prediction →</a>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+    </main>
+
+    <!-- FOOTER -->
+    <footer id="footer">
+        <div class="container">
+            <div class="footer-content">
+                <p>CKD Prediction System — AI-Powered Kidney Disease Risk Assessment</p>
+                <p class="footer-sub">Dataset: <a href="https://archive.ics.uci.edu/ml/datasets/chronic_kidney_disease" target="_blank" rel="noopener">UCI ML Repository</a> · Model: Random Forest · Python + Flask</p>
+            </div>
+        </div>
+    </footer>
+
+    <script>
+        (function() {
+            const saved = localStorage.getItem("ckd-theme");
+            if (saved === "dark") document.documentElement.setAttribute("data-theme", "dark");
+            document.getElementById("theme-toggle").addEventListener("click", () => {
+                const isDark = document.documentElement.getAttribute("data-theme") === "dark";
+                document.documentElement.setAttribute("data-theme", isDark ? "light" : "dark");
+                localStorage.setItem("ckd-theme", isDark ? "light" : "dark");
+            });
+        })();
+    </script>
+</body>
+</html>

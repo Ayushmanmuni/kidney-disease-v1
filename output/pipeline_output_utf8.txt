@@ -1,0 +1,212 @@
+﻿============================================================
+  CHRONIC KIDNEY DISEASE ΓÇô PREDICTION PIPELINE
+============================================================
+
+Γû╢ STEP 1 ΓÇô Loading the dataset ΓÇª
+   Γ£à Dataset loaded successfully ΓÇö 400 rows ├ù 25 columns
+
+Γû╢ STEP 2 ΓÇô Exploring the dataset ΓÇª
+
+ΓöÇΓöÇ First 5 Rows ΓöÇΓöÇ
+  age  bp     sg al su     rbc        pc         pcc          ba  bgr  bu   sc  sod  pot  hemo pcv    wc   rc  htn   dm cad appet   pe  ane classification
+0  48  80  1.020  1  0     NaN    normal  notpresent  notpresent  121  36  1.2  NaN  NaN  15.4  44  7800  5.2  yes  yes  no  good   no   no            ckd
+1   7  50  1.020  4  0     NaN    normal  notpresent  notpresent  NaN  18  0.8  NaN  NaN  11.3  38  6000  NaN   no   no  no  good   no   no            ckd
+2  62  80  1.010  2  3  normal    normal  notpresent  notpresent  423  53  1.8  NaN  NaN   9.6  31  7500  NaN   no  yes  no  poor   no  yes            ckd
+3  48  70  1.005  4  0  normal  abnormal     present  notpresent  117  56  3.8  111  2.5  11.2  32  6700  3.9  yes   no  no  poor  yes  yes            ckd
+4  51  80  1.010  2  0  normal    normal  notpresent  notpresent  106  26  1.4  NaN  NaN  11.6  35  7300  4.6   no   no  no  good   no   no            ckd
+
+ΓöÇΓöÇ Dataset Info ΓöÇΓöÇ
+<class 'pandas.core.frame.DataFrame'>
+RangeIndex: 400 entries, 0 to 399
+Data columns (total 25 columns):
+ #   Column          Non-Null Count  Dtype 
+---  ------          --------------  ----- 
+ 0   age             391 non-null    object
+ 1   bp              388 non-null    object
+ 2   sg              353 non-null    object
+ 3   al              354 non-null    object
+ 4   su              351 non-null    object
+ 5   rbc             248 non-null    object
+ 6   pc              335 non-null    object
+ 7   pcc             396 non-null    object
+ 8   ba              396 non-null    object
+ 9   bgr             356 non-null    object
+ 10  bu              381 non-null    object
+ 11  sc              383 non-null    object
+ 12  sod             313 non-null    object
+ 13  pot             312 non-null    object
+ 14  hemo            348 non-null    object
+ 15  pcv             329 non-null    object
+ 16  wc              294 non-null    object
+ 17  rc              269 non-null    object
+ 18  htn             398 non-null    object
+ 19  dm              397 non-null    object
+ 20  cad             398 non-null    object
+ 21  appet           399 non-null    object
+ 22  pe              399 non-null    object
+ 23  ane             399 non-null    object
+ 24  classification  400 non-null    object
+dtypes: object(25)
+memory usage: 78.3+ KB
+None
+
+ΓöÇΓöÇ Missing Values Per Column ΓöÇΓöÇ
+age        9
+bp        12
+sg        47
+al        46
+su        49
+rbc      152
+pc        65
+pcc        4
+ba         4
+bgr       44
+bu        19
+sc        17
+sod       87
+pot       88
+hemo      52
+pcv       71
+wc       106
+rc       131
+htn        2
+dm         3
+cad        2
+appet      1
+pe         1
+ane        1
+
+   Total missing values: 1013
+
+ΓöÇΓöÇ Class Distribution ΓöÇΓöÇ
+classification
+ckd       250
+notckd    149
+no          1
+
+Γû╢ STEP 3 ΓÇô Handling missing values ΓÇª
+   Γ£à Missing values after cleaning: 0
+
+Γû╢ STEP 4 ΓÇô Encoding categorical variables ΓÇª
+   Γ£à All categorical columns encoded to numeric
+
+ΓöÇΓöÇ Encoded Data (first 5 rows) ΓöÇΓöÇ
+    age    bp     sg   al   su  rbc  pc  pcc  ba    bgr    bu   sc    sod  pot  hemo   pcv      wc   rc  htn  dm  cad  appet   pe  ane  classification
+0  48.0  80.0  1.020  1.0  0.0    0   0    0   0  121.0  36.0  1.2  138.0  4.4  15.4  44.0  7800.0  5.2    1   1    0    0.0  0.0    0             1.0
+1   7.0  50.0  1.020  4.0  0.0    0   0    0   0  121.0  18.0  0.8  138.0  4.4  11.3  38.0  6000.0  4.8    0   0    0    0.0  0.0    0             1.0
+2  62.0  80.0  1.010  2.0  3.0    0   0    0   0  423.0  53.0  1.8  138.0  4.4   9.6  31.0  7500.0  4.8    0   1    0    1.0  0.0    1             1.0
+3  48.0  70.0  1.005  4.0  0.0    0   1    1   0  117.0  56.0  3.8  111.0  2.5  11.2  32.0  6700.0  3.9    1   0    0    1.0  1.0    1             1.0
+4  51.0  80.0  1.010  2.0  0.0    0   0    0   0  106.0  26.0  1.4  138.0  4.4  11.6  35.0  7300.0  4.6    0   0    0    0.0  0.0    0             1.0
+
+Γû╢ STEP 5 ΓÇô Separating features (X) and target (y) ΓÇª
+   Features shape : (400, 24)
+   Target shape   : (400,)
+   CKD patients   : 251
+   Non-CKD        : 149
+
+Γû╢ STEP 6 ΓÇô Splitting into train / test sets (80/20) ΓÇª
+   Training set : 320 samples
+   Testing set  : 80 samples
+
+Γû╢ STEP 7 ΓÇô Training machine learning models ΓÇª
+   Γ£à Logistic Regression trained successfully
+   Γ£à Decision Tree trained successfully
+   Γ£à Random Forest trained successfully
+
+Γû╢ STEP 8 ΓÇô Evaluating model performance ΓÇª
+
+   ΓöÇΓöÇ Logistic Regression ΓöÇΓöÇ
+   Accuracy  : 92.50%
+   Precision : 95.83%
+   Recall    : 92.00%
+   Confusion Matrix:
+[[28  2]
+ [ 4 46]]
+
+   Classification Report:
+              precision    recall  f1-score   support
+
+     Not CKD       0.88      0.93      0.90        30
+         CKD       0.96      0.92      0.94        50
+
+    accuracy                           0.93        80
+   macro avg       0.92      0.93      0.92        80
+weighted avg       0.93      0.93      0.93        80
+
+
+   ΓöÇΓöÇ Decision Tree ΓöÇΓöÇ
+   Accuracy  : 97.50%
+   Precision : 100.00%
+   Recall    : 96.00%
+   Confusion Matrix:
+[[30  0]
+ [ 2 48]]
+
+   Classification Report:
+              precision    recall  f1-score   support
+
+     Not CKD       0.94      1.00      0.97        30
+         CKD       1.00      0.96      0.98        50
+
+    accuracy                           0.97        80
+   macro avg       0.97      0.98      0.97        80
+weighted avg       0.98      0.97      0.98        80
+
+
+   ΓöÇΓöÇ Random Forest ΓöÇΓöÇ
+   Accuracy  : 100.00%
+   Precision : 100.00%
+   Recall    : 100.00%
+   Confusion Matrix:
+[[30  0]
+ [ 0 50]]
+
+   Classification Report:
+              precision    recall  f1-score   support
+
+     Not CKD       1.00      1.00      1.00        30
+         CKD       1.00      1.00      1.00        50
+
+    accuracy                           1.00        80
+   macro avg       1.00      1.00      1.00        80
+weighted avg       1.00      1.00      1.00        80
+
+
+Γû╢ STEP 9 ΓÇô Model comparison ΓÇª
+
+              Model  Accuracy  Precision  Recall
+Logistic Regression      92.5      95.83    92.0
+      Decision Tree      97.5     100.00    96.0
+      Random Forest     100.0     100.00   100.0
+
+   ≡ƒÅå Best Model: Random Forest with 100.0% accuracy
+   ≡ƒôè Comparison chart saved ΓåÆ C:\Users\ayush\Downloads\kidney disease v1\output\model_comparison.png
+   ≡ƒôè Confusion matrices saved ΓåÆ C:\Users\ayush\Downloads\kidney disease v1\output\confusion_matrices.png
+
+Γû╢ STEP 10 ΓÇô Saving the best model ΓÇª
+   Γ£à Random Forest saved as ΓåÆ C:\Users\ayush\Downloads\kidney disease v1\output\best_ckd_model.pkl
+   ≡ƒôª Model can be loaded with: joblib.load('C:\Users\ayush\Downloads\kidney disease v1\output\best_ckd_model.pkl')
+
+============================================================
+  PIPELINE COMPLETE
+============================================================
+
+  Dataset         : 400 records ├ù 25 columns
+  Training set    : 320 samples
+  Testing set     : 80 samples
+
+  Model Results:
+
+    Logistic Regression        Acc:  92.50%  Prec:  95.83%  Rec:  92.00%
+    Decision Tree              Acc:  97.50%  Prec: 100.00%  Rec:  96.00%
+    Random Forest              Acc: 100.00%  Prec: 100.00%  Rec: 100.00% ≡ƒÅå
+
+  Best Model      : Random Forest
+  Saved to         : C:\Users\ayush\Downloads\kidney disease v1\output\best_ckd_model.pkl
+
+  Output files:
+    ΓÇó C:\Users\ayush\Downloads\kidney disease v1\output\model_comparison.png
+    ΓÇó C:\Users\ayush\Downloads\kidney disease v1\output\confusion_matrices.png
+    ΓÇó C:\Users\ayush\Downloads\kidney disease v1\output\best_ckd_model.pkl
+
+============================================================
