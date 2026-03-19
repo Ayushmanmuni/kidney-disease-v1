@@ -1,0 +1,322 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Dashboard — CKD Prediction System</title>
+    <meta name="description" content="Clinical Overview at a Glance page with CKD prediction dashboard widgets.">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="/static/css/style.css">
+</head>
+
+<body>
+
+    <nav id="navbar">
+        <div class="nav-content">
+            <a href="/" class="logo"><span class="logo-icon">🩺</span><span>CKD Predict</span></a>
+            <div class="nav-links">
+                <a href="/" class="nav-link">Home</a>
+                <a href="/dashboard" class="nav-link active">Dashboard</a>
+                <a href="/about-ckd" class="nav-link">Understanding</a>
+                <a href="/how-it-works" class="nav-link">How It Works</a>
+                <a href="/transparency" class="nav-link">Transparency</a>
+                <a href="/research-team" class="nav-link">Research Team</a>
+                <button id="theme-toggle" aria-label="Toggle dark mode">
+                    <svg class="icon-sun" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                        <circle cx="12" cy="12" r="5" />
+                        <path d="M12 1v2M12 21v2M4.22 4.22l1.42 1.42M18.36 18.36l1.42 1.42M1 12h2M21 12h2M4.22 19.78l1.42-1.42M18.36 5.64l1.42-1.42" />
+                    </svg>
+                    <svg class="icon-moon" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                        <path d="M21 12.79A9 9 0 1111.21 3 7 7 0 0021 12.79z" />
+                    </svg>
+                </button>
+            </div>
+        </div>
+    </nav>
+
+    <main class="page-content">
+        <section class="page-hero">
+            <div class="container">
+                <span class="section-badge">Live Dashboard</span>
+                <h1>Clinical Overview at a Glance</h1>
+                <p class="page-hero-desc">This dashboard summarizes key working indicators from the latest CKD prediction session.</p>
+            </div>
+        </section>
+
+        <section class="section dashboard-home-section" style="padding-top: 0;">
+            <div class="container">
+                <div class="home-dash-shell">
+                    <aside class="home-dash-sidebar">
+                        <div class="home-dash-title">CKD Predict</div>
+                        <ul class="home-dash-menu" id="dash-menu">
+                            <li class="active menu-item" data-target="tab-dashboard">Dashboard</li>
+                            <li class="menu-item" data-target="tab-patients">Patients</li>
+                            <li class="menu-item" data-target="tab-models">Models</li>
+                            <li class="menu-item" data-target="tab-analytics">Analytics</li>
+                            <li class="menu-item" data-target="tab-settings">Settings</li>
+                        </ul>
+                        <div class="home-dash-footer menu-item" data-target="tab-profile">Profile</div>
+                    </aside>
+
+                    <div class="home-dash-main">
+                        <div id="tab-dashboard" class="dash-pane active-pane">
+                            <div class="home-dash-topbar">
+                            <div>
+                                <strong>Patient: Last Session Snapshot</strong>
+                                <span class="topbar-meta" id="home-last-updated">Updated from latest prediction</span>
+                            </div>
+                            <div class="home-risk-chip" id="home-risk-chip">
+                                <span class="chip-dot"></span>
+                                <span id="home-risk-chip-tag">Moderate Risk</span>
+                            </div>
+                        </div>
+
+                        <div class="home-metrics-grid">
+                            <article class="home-metric-card" id="home-metric-bp">
+                                <h4>Blood Pressure</h4>
+                                <p class="home-metric-value">80 mm/Hg</p>
+                                <svg viewBox="0 0 120 34" class="mini-spark" aria-hidden="true">
+                                    <polyline points="2,28 20,24 38,26 56,18 74,20 92,14 118,16" />
+                                </svg>
+                            </article>
+                            <article class="home-metric-card" id="home-metric-creatinine">
+                                <h4>Creatinine</h4>
+                                <p class="home-metric-value">1.1 mg/dL</p>
+                                <svg viewBox="0 0 120 34" class="mini-spark spark-warn" aria-hidden="true">
+                                    <polyline points="2,20 20,18 38,17 56,14 74,12 92,10 118,8" />
+                                </svg>
+                            </article>
+                            <article class="home-metric-card" id="home-metric-egfr">
+                                <h4>Estimated eGFR</h4>
+                                <p class="home-metric-value">92 mL/min/1.73m²</p>
+                                <svg viewBox="0 0 120 34" class="mini-spark" aria-hidden="true">
+                                    <polyline points="2,12 20,14 38,13 56,15 74,16 92,18 118,20" />
+                                </svg>
+                            </article>
+                            <article class="home-metric-card" id="home-metric-hemo">
+                                <h4>Hemoglobin</h4>
+                                <p class="home-metric-value">14.2 g/dL</p>
+                                <svg viewBox="0 0 120 34" class="mini-spark" aria-hidden="true">
+                                    <polyline points="2,22 20,20 38,19 56,17 74,18 92,16 118,15" />
+                                </svg>
+                            </article>
+                        </div>
+
+                        <div class="home-analytics-grid">
+                            <article class="home-analysis-card">
+                                <h3>Risk Analysis &amp; Prediction</h3>
+                                <div class="home-analysis-inner">
+                                    <div class="home-chart-wrap">
+                                        <svg viewBox="0 0 340 180" class="home-risk-chart" aria-hidden="true">
+                                            <defs>
+                                                <linearGradient id="homeAreaGrad" x1="0" x2="0" y1="0" y2="1">
+                                                    <stop offset="0%" stop-color="rgba(59,130,246,0.40)" />
+                                                    <stop offset="100%" stop-color="rgba(59,130,246,0.00)" />
+                                                </linearGradient>
+                                            </defs>
+                                            <path class="chart-grid" d="M20 150 H320 M20 120 H320 M20 90 H320 M20 60 H320 M20 30 H320" />
+                                            <path class="chart-area" d="M20 150 C70 145 110 120 150 85 C190 52 225 42 265 36 C285 34 300 30 320 24 L320 150 Z" />
+                                            <path class="chart-line" d="M20 150 C70 145 110 120 150 85 C190 52 225 42 265 36 C285 34 300 30 320 24" />
+                                            <circle cx="320" cy="24" r="4" class="chart-point" />
+                                        </svg>
+                                    </div>
+
+                                    <div class="home-mini-gauge">
+                                        <svg viewBox="0 0 220 140" class="home-risk-gauge" aria-label="Homepage risk gauge">
+                                            <path class="home-risk-gauge-bg" d="M20 120 A90 90 0 0 1 200 120"></path>
+                                            <path class="home-risk-gauge-fill" id="home-risk-gauge-fill" d="M20 120 A90 90 0 0 1 200 120"></path>
+                                        </svg>
+                                        <div class="home-risk-value" id="home-risk-value">34%</div>
+                                        <div class="home-risk-status" id="home-risk-status">Moderate Risk</div>
+                                    </div>
+                                </div>
+                            </article>
+
+                            <div class="home-side-stack">
+                                <article class="home-side-card">
+                                    <h4>Patient Activity</h4>
+                                    <ul id="home-activity">
+                                        <li>Prediction model loaded</li>
+                                        <li>Last session synced</li>
+                                        <li>Dashboard ready</li>
+                                    </ul>
+                                </article>
+                                <article class="home-side-card">
+                                    <h4>Recommendation / Next Steps</h4>
+                                    <ul id="home-next-steps">
+                                        <li>Run a fresh assessment</li>
+                                        <li>Review biomarker details</li>
+                                        <li>Use doctor mode for full analysis</li>
+                                    </ul>
+                                </article>
+                            </div>
+                        </div>
+
+                        <div class="home-dash-actions">
+                            <a class="btn btn-primary" href="/">Start Assessment</a>
+                            <a class="btn btn-secondary" href="/how-it-works">View Pipeline</a>
+                        </div>
+                        </div> <!-- end tab-dashboard -->
+
+                        <div id="tab-patients" class="dash-pane" style="display:none; padding: 20px;">
+                            <h2>Patients List</h2>
+                            <p style="color:var(--text-secondary); margin-top:8px;">Manage and view recently assessed patient records here. Currently displaying sample data.</p>
+                            <div style="margin-top:20px; padding:20px; background:var(--bg-card); border:1px solid var(--border); border-radius:var(--radius-md);">
+                                <strong>John Doe</strong> - Moderate Risk (34%)<br>
+                                <span style="font-size:0.85rem; color:var(--text-muted);">Assessed today</span>
+                            </div>
+                        </div>
+
+                        <div id="tab-models" class="dash-pane" style="display:none; padding: 20px;">
+                            <h2>ML Models</h2>
+                            <p style="color:var(--text-secondary); margin-top:8px;">Information about the Random Forest model and performance metrics.</p>
+                            <div style="margin-top:20px; padding:20px; background:var(--bg-card); border:1px solid var(--border); border-radius:var(--radius-md);">
+                                <strong>Active Model:</strong> Random Forest Classifier<br>
+                                <strong>Accuracy:</strong> 99%<br>
+                                <strong>Features:</strong> 24 Parameters
+                            </div>
+                        </div>
+
+                        <div id="tab-analytics" class="dash-pane" style="display:none; padding: 20px;">
+                            <h2>Analytics</h2>
+                            <p style="color:var(--text-secondary); margin-top:8px;">General predictive analytics and usage statistics.</p>
+                        </div>
+
+                        <div id="tab-settings" class="dash-pane" style="display:none; padding: 20px;">
+                            <h2>Settings</h2>
+                            <p style="color:var(--text-secondary); margin-top:8px;">Preferences and system configurations.</p>
+                        </div>
+
+                        <div id="tab-profile" class="dash-pane" style="display:none; padding: 20px;">
+                            <h2>User Profile</h2>
+                            <p style="color:var(--text-secondary); margin-top:8px;">Manage your account details and credentials here.</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+    </main>
+
+    <footer id="footer">
+        <div class="container">
+            <div class="footer-content">
+                <p>CKD Prediction System — AI-Powered Kidney Disease Risk Assessment</p>
+                <p class="footer-sub">Dataset: <a href="https://archive.ics.uci.edu/ml/datasets/chronic_kidney_disease" target="_blank" rel="noopener">UCI ML Repository</a> · Model: Random Forest · Python + Flask</p>
+            </div>
+        </div>
+    </footer>
+
+    <script>
+        (function() {
+            const saved = localStorage.getItem("ckd-theme");
+            if (saved === "dark") document.documentElement.setAttribute("data-theme", "dark");
+            document.getElementById("theme-toggle").addEventListener("click", () => {
+                const isDark = document.documentElement.getAttribute("data-theme") === "dark";
+                document.documentElement.setAttribute("data-theme", isDark ? "light" : "dark");
+                localStorage.setItem("ckd-theme", isDark ? "light" : "dark");
+            });
+
+            const snapshotRaw = localStorage.getItem("ckd-last-result");
+            let snapshot = null;
+            try {
+                snapshot = snapshotRaw ? JSON.parse(snapshotRaw) : null;
+            } catch (e) {
+                snapshot = null;
+            }
+
+            const ckdPct = snapshot && Number.isFinite(Number(snapshot.ckdPct)) ? Number(snapshot.ckdPct) : 34;
+            const data = snapshot && snapshot.submittedData ? snapshot.submittedData : { bp: 80, sc: 1.1, hemo: 14.2, age: 38 };
+
+            function gaugeColor(pct) {
+                if (pct <= 30) return { color: "#22c55e", tag: "Low Risk" };
+                if (pct <= 60) return { color: "#f59e0b", tag: "Moderate Risk" };
+                return { color: "#ef4444", tag: "High Risk" };
+            }
+
+            function setText(id, text) {
+                const el = document.getElementById(id);
+                if (el) el.textContent = text;
+            }
+
+            const fill = document.getElementById("home-risk-gauge-fill");
+            if (fill) {
+                const len = fill.getTotalLength();
+                fill.style.strokeDasharray = String(len);
+                fill.style.strokeDashoffset = String(len * (1 - ckdPct / 100));
+            }
+
+            const risk = gaugeColor(ckdPct);
+            if (fill) fill.style.stroke = risk.color;
+            setText("home-risk-value", `${ckdPct}%`);
+            setText("home-risk-status", risk.tag);
+            setText("home-risk-chip-tag", risk.tag);
+
+            const dot = document.querySelector(".chip-dot");
+            if (dot) dot.style.background = risk.color;
+
+            const bp = Number(data.bp) || 80;
+            const sc = Number(data.sc) || 1.1;
+            const hemo = Number(data.hemo) || 14.2;
+            const age = Number(data.age) || 38;
+            const egfr = Math.max(10, Math.min(130, Math.round(118 - (age * 0.55) - ((sc - 0.7) * 32))));
+
+            const metricMap = {
+                "home-metric-bp": `${bp} mm/Hg`,
+                "home-metric-creatinine": `${sc.toFixed(1)} mg/dL`,
+                "home-metric-egfr": `${egfr} mL/min/1.73m²`,
+                "home-metric-hemo": `${hemo.toFixed(1)} g/dL`
+            };
+
+            Object.entries(metricMap).forEach(([id, value]) => {
+                const card = document.getElementById(id);
+                if (!card) return;
+                const valEl = card.querySelector(".home-metric-value");
+                if (valEl) valEl.textContent = value;
+            });
+
+            if (snapshot && snapshot.timestamp) {
+                const dt = new Date(snapshot.timestamp);
+                setText("home-last-updated", `Updated ${dt.toLocaleString()}`);
+            }
+
+            const activity = document.getElementById("home-activity");
+            if (activity) {
+                activity.innerHTML = `<li>Prediction result: ${snapshot && snapshot.prediction ? snapshot.prediction : "Not CKD"}</li><li>Risk score: ${ckdPct}%</li><li>Creatinine captured: ${sc.toFixed(1)} mg/dL</li>`;
+            }
+
+            // Tab Switching Logic
+            const menuItems = document.querySelectorAll('.menu-item');
+            const panes = document.querySelectorAll('.dash-pane');
+
+            menuItems.forEach(item => {
+                item.addEventListener('click', () => {
+                    // Remove active class from all menu items
+                    menuItems.forEach(mi => mi.classList.remove('active'));
+                    // Add active class to clicked item (for highlight)
+                    item.classList.add('active');
+
+                    // Hide all panes
+                    panes.forEach(pane => {
+                        pane.style.display = 'none';
+                        pane.style.opacity = '0';
+                    });
+
+                    // Show target pane
+                    const targetId = item.getAttribute('data-target');
+                    const targetPane = document.getElementById(targetId);
+                    if (targetPane) {
+                        targetPane.style.display = 'block';
+                        // Small timeout for smooth fade-in
+                        setTimeout(() => {
+                            targetPane.style.opacity = '1';
+                            targetPane.style.transition = 'opacity 0.3s ease';
+                        }, 50);
+                    }
+                });
+            });
+        })();
+    </script>
+</body>
+
+</html>

@@ -20,9 +20,12 @@
             <a href="#" class="logo" onclick="goHome();return false"><span class="logo-icon">🩺</span><span>CKD
                     Predict</span></a>
             <div class="nav-links">
-                <a href="/about-ckd" class="nav-link">About CKD</a>
+                <a href="/" class="nav-link active">Home</a>
+                <a href="/dashboard" class="nav-link">Dashboard</a>
+                <a href="/about-ckd" class="nav-link">Understanding</a>
                 <a href="/how-it-works" class="nav-link">How It Works</a>
-                <a href="/research" class="nav-link">Research</a>
+                <a href="/transparency" class="nav-link">Transparency</a>
+                <a href="/research-team" class="nav-link">Research Team</a>
                 <button id="theme-toggle" aria-label="Toggle dark mode">
                     <svg class="icon-sun" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor"
                         stroke-width="2">
@@ -48,301 +51,46 @@
                 <div class="hero-content">
                     <div class="hero-badge">🤖 AI-Powered Medical Research Platform</div>
                     <h1>Chronic Kidney Disease<br><span class="gradient-text">Prediction System</span></h1>
-                    <p class="hero-desc">Leveraging Random Forest machine learning to predict Chronic Kidney Disease
-                        risk from 24 clinical biomarkers. Trained on the UCI CKD dataset for early detection and
-                        research-grade accuracy.</p>
+                    <p class="hero-desc">A professional healthcare AI homepage for CKD risk screening research. Explore the project,
+                        methodology, transparency, ethics, and team before starting an assessment.</p>
                     <div class="hero-btns">
                         <button id="start-btn" class="btn btn-primary btn-lg">Start Assessment →</button>
                         <a href="/how-it-works" class="btn btn-secondary btn-lg">Learn How It Works</a>
                     </div>
-                    <div class="hero-stats">
-                        <div class="stat-item"><span class="stat-number">400+</span><span class="stat-label">Patients
-                                Trained</span></div>
-                        <div class="stat-item"><span class="stat-number">24</span><span class="stat-label">Clinical
-                                Features</span></div>
-                        <div class="stat-item"><span class="stat-number">97%+</span><span class="stat-label">Model
-                                Accuracy</span></div>
+                    <div class="hero-links" aria-label="Homepage section navigation">
+                        <a href="/" class="hero-link-chip">Home</a>
+                        <a href="/dashboard" class="hero-link-chip">Dashboard</a>
+                        <a href="/about-ckd" class="hero-link-chip">Understanding</a>
+                        <a href="/transparency" class="hero-link-chip">Transparency</a>
+                        <a href="/research-team" class="hero-link-chip">Team</a>
                     </div>
-                </div>
-                <div class="hero-visual">
-                    <div class="floating-card fc-1"><span>💉</span> Blood Pressure</div>
-                    <div class="floating-card fc-2"><span>🧪</span> Serum Creatinine</div>
-                    <div class="floating-card fc-3"><span>🩸</span> Hemoglobin</div>
-                    <div class="floating-card fc-4"><span>⚕️</span> Random Forest ML</div>
-                    <div class="floating-card fc-5"><span>🧬</span> 24 Biomarkers</div>
-                    <div class="hero-orb"></div>
                 </div>
             </div>
         </section>
 
-        <!-- WHAT IS CKD -->
-        <section id="about-ckd" class="section">
+        <section class="section section-alt">
             <div class="container">
                 <div class="section-header">
-                    <span class="section-badge">Understanding the Disease</span>
-                    <h2>What is Chronic Kidney Disease?</h2>
-                    <p>CKD is a progressive condition where kidneys gradually lose their ability to filter blood
-                        properly</p>
+                    <span class="section-badge">Navigate</span>
+                    <h2>Explore the Project</h2>
+                    <p>Learn about kidney disease, understand our machine learning pipeline, or analyze clinical data.</p>
                 </div>
                 <div class="info-cards">
-                    <div class="info-card">
-                        <div class="info-icon">🫘</div>
-                        <h3>About CKD</h3>
-                        <p>Chronic Kidney Disease is the gradual loss of kidney function over months or years. Kidneys
-                            filter waste and excess fluids from blood. When damaged, waste builds up to dangerous levels
-                            in the body.</p>
-                    </div>
-                    <div class="info-card">
-                        <div class="info-icon">🌍</div>
-                        <h3>Global Impact</h3>
-                        <p><strong>850 million</strong> people worldwide are affected. CKD causes <strong>2.4 million
-                                deaths/year</strong>, making it the <strong>6th fastest growing</strong> cause of death
-                            globally. 1 in 10 adults has some form of CKD.</p>
-                    </div>
-                    <div class="info-card">
-                        <div class="info-icon">⏰</div>
-                        <h3>Early Detection Matters</h3>
-                        <p>90% of CKD patients are unaware of their condition. Early-stage CKD is <strong>treatable and
-                                manageable</strong>. AI-powered screening can catch it before symptoms appear,
-                            potentially saving lives.</p>
-                    </div>
-                </div>
-            </div>
-        </section>
-
-        <!-- HOW THE AI SYSTEM WORKS -->
-        <section id="how-it-works" class="section section-alt">
-            <div class="container">
-                <div class="section-header">
-                    <span class="section-badge">System Architecture</span>
-                    <h2>How the AI System Works</h2>
-                    <p>A 5-step pipeline from data entry to risk visualization</p>
-                </div>
-                <div class="steps-flow">
-                    <div class="flow-step">
-                        <div class="flow-icon">📋</div>
-                        <h4>Enter Parameters</h4>
-                        <p>Input 24 clinical values through guided form</p>
-                    </div>
-                    <div class="flow-connector">
-                        <div class="flow-line"></div><span>→</span>
-                    </div>
-                    <div class="flow-step">
-                        <div class="flow-icon">⚙️</div>
-                        <h4>Preprocessing</h4>
-                        <p>Data encoding &amp; normalization</p>
-                    </div>
-                    <div class="flow-connector">
-                        <div class="flow-line"></div><span>→</span>
-                    </div>
-                    <div class="flow-step">
-                        <div class="flow-icon">🌲</div>
-                        <h4>Random Forest</h4>
-                        <p>100-tree ensemble analysis</p>
-                    </div>
-                    <div class="flow-connector">
-                        <div class="flow-line"></div><span>→</span>
-                    </div>
-                    <div class="flow-step">
-                        <div class="flow-icon">🎯</div>
-                        <h4>Risk Prediction</h4>
-                        <p>CKD probability scoring</p>
-                    </div>
-                    <div class="flow-connector">
-                        <div class="flow-line"></div><span>→</span>
-                    </div>
-                    <div class="flow-step">
-                        <div class="flow-icon">📊</div>
-                        <h4>Dashboard</h4>
-                        <p>Visual results &amp; health analysis</p>
-                    </div>
-                </div>
-            </div>
-        </section>
-
-        <!-- DATASET & MODEL -->
-        <section id="dataset-model" class="section">
-            <div class="container">
-                <div class="section-header">
-                    <span class="section-badge">Research Foundation</span>
-                    <h2>Dataset &amp; Model Performance</h2>
-                </div>
-                <div class="model-grid">
-                    <div class="model-info-card">
-                        <h3>📁 UCI CKD Dataset</h3>
-                        <div class="model-facts">
-                            <div class="fact"><span class="fact-label">Source</span><span class="fact-value">UCI ML
-                                    Repository</span></div>
-                            <div class="fact"><span class="fact-label">Patients</span><span class="fact-value">400
-                                    records</span></div>
-                            <div class="fact"><span class="fact-label">Features</span><span class="fact-value">24
-                                    clinical</span></div>
-                            <div class="fact"><span class="fact-label">Target</span><span class="fact-value">CKD / Not
-                                    CKD</span></div>
-                            <div class="fact"><span class="fact-label">Split</span><span class="fact-value">80% train ·
-                                    20% test</span></div>
-                            <div class="fact"><span class="fact-label">Final Model</span><span class="fact-value">Random
-                                    Forest (100 trees)</span></div>
-                        </div>
-                    </div>
-                    <div class="model-chart-card">
-                        <h3>📊 Model Comparison</h3>
-                        <div class="perf-chart">
-                            <div class="perf-row"><span class="perf-name">Logistic Regression</span>
-                                <div class="perf-track">
-                                    <div class="perf-bar" style="width:95%">95.0%</div>
-                                </div>
-                            </div>
-                            <div class="perf-row"><span class="perf-name">Decision Tree</span>
-                                <div class="perf-track">
-                                    <div class="perf-bar" style="width:93.75%">93.8%</div>
-                                </div>
-                            </div>
-                            <div class="perf-row best"><span class="perf-name">Random Forest 🏆</span>
-                                <div class="perf-track">
-                                    <div class="perf-bar rf" style="width:97.5%">97.5%</div>
-                                </div>
-                            </div>
-                        </div>
-                        <p class="chart-note">Accuracy scores on 20% held-out test set (stratified)</p>
-                    </div>
-                </div>
-            </div>
-        </section>
-
-        <!-- KEY CLINICAL PARAMETERS -->
-        <section id="biomarkers" class="section section-alt">
-            <div class="container">
-                <div class="section-header">
-                    <span class="section-badge">Clinical Biomarkers</span>
-                    <h2>Key Parameters for CKD Detection</h2>
-                    <p>The most important clinical indicators used by our model</p>
-                </div>
-                <div class="bio-cards">
-                    <div class="bio-card">
-                        <div class="bio-icon bc-red">🧪</div>
-                        <h4>Serum Creatinine</h4>
-                        <p>Waste product from muscle metabolism filtered by kidneys. Elevated levels (>1.2 mg/dL) are
-                            one of the strongest indicators of impaired kidney function.</p><span
-                            class="bio-range">Normal: 0.6–1.2 mg/dL</span>
-                    </div>
-                    <div class="bio-card">
-                        <div class="bio-icon bc-blue">🩸</div>
-                        <h4>Hemoglobin</h4>
-                        <p>Kidneys produce erythropoietin to stimulate red blood cell production. Low hemoglobin (<12
-                                g/dL) indicates anemia, a common CKD complication.</p><span class="bio-range">Normal:
-                                    12–17 g/dL</span>
-                    </div>
-                    <div class="bio-card">
-                        <div class="bio-icon bc-purple">💉</div>
-                        <h4>Blood Pressure</h4>
-                        <p>High blood pressure damages the small blood vessels in kidneys over time. It is both a
-                            leading cause and a consequence of kidney disease.</p><span class="bio-range">Normal: 60–80
-                            mm/Hg</span>
-                    </div>
-                    <div class="bio-card">
-                        <div class="bio-icon bc-orange">🍬</div>
-                        <h4>Blood Glucose</h4>
-                        <p>Diabetes is the #1 cause of CKD globally. Persistently high blood sugar damages the kidney's
-                            filtering units (glomeruli).</p><span class="bio-range">Normal: 70–140 mg/dL</span>
-                    </div>
-                    <div class="bio-card">
-                        <div class="bio-icon bc-green">💧</div>
-                        <h4>Blood Urea</h4>
-                        <p>Urea is a byproduct of protein metabolism. When kidneys can't filter effectively, blood urea
-                            nitrogen rises above normal levels.</p><span class="bio-range">Normal: 7–20 mg/dL</span>
-                    </div>
-                </div>
-            </div>
-        </section>
-
-        <!-- CKD STAGES -->
-        <section id="ckd-stages" class="section">
-            <div class="container">
-                <div class="section-header">
-                    <span class="section-badge">Disease Progression</span>
-                    <h2>The 5 Stages of CKD</h2>
-                    <p>CKD progresses through stages based on kidney filtration rate (GFR)</p>
-                </div>
-                <div class="stages-timeline">
-                    <div class="stage s1">
-                        <div class="stage-num">1</div>
-                        <h4>Mild Damage</h4>
-                        <p>GFR ≥ 90 · Kidney damage with normal function</p>
-                    </div>
-                    <div class="stage s2">
-                        <div class="stage-num">2</div>
-                        <h4>Early Decline</h4>
-                        <p>GFR 60–89 · Mild loss of function</p>
-                    </div>
-                    <div class="stage s3">
-                        <div class="stage-num">3</div>
-                        <h4>Moderate Damage</h4>
-                        <p>GFR 30–59 · Noticeable loss of function</p>
-                    </div>
-                    <div class="stage s4">
-                        <div class="stage-num">4</div>
-                        <h4>Severe Damage</h4>
-                        <p>GFR 15–29 · Severe loss of function</p>
-                    </div>
-                    <div class="stage s5">
-                        <div class="stage-num">5</div>
-                        <h4>Kidney Failure</h4>
-                        <p>GFR < 15 · Dialysis or transplant needed</p>
-                    </div>
-                </div>
-            </div>
-        </section>
-
-        <!-- AI VS TRADITIONAL -->
-        <section id="comparison" class="section section-alt">
-            <div class="container">
-                <div class="section-header">
-                    <span class="section-badge">Why AI?</span>
-                    <h2>AI vs Traditional Diagnosis</h2>
-                </div>
-                <div class="compare-wrapper">
-                    <table class="compare-table">
-                        <thead>
-                            <tr>
-                                <th>Criteria</th>
-                                <th>Traditional</th>
-                                <th>AI-Assisted ✨</th>
-                            </tr>
-                        </thead>
-                        <tbody>
-                            <tr>
-                                <td>Speed</td>
-                                <td>Hours to days</td>
-                                <td class="highlight">Seconds</td>
-                            </tr>
-                            <tr>
-                                <td>Consistency</td>
-                                <td>Varies by clinician</td>
-                                <td class="highlight">100% consistent</td>
-                            </tr>
-                            <tr>
-                                <td>Cost</td>
-                                <td>Lab + consultation fees</td>
-                                <td class="highlight">Minimal compute cost</td>
-                            </tr>
-                            <tr>
-                                <td>Scalability</td>
-                                <td>Limited by staff</td>
-                                <td class="highlight">Unlimited parallel</td>
-                            </tr>
-                            <tr>
-                                <td>Early Detection</td>
-                                <td>Often missed at Stage 1–2</td>
-                                <td class="highlight">Pattern recognition</td>
-                            </tr>
-                            <tr>
-                                <td>24/7 Availability</td>
-                                <td>Office hours only</td>
-                                <td class="highlight">Always available</td>
-                            </tr>
-                        </tbody>
-                    </table>
+                    <a href="/dashboard" class="info-card" style="text-align:left; text-decoration:none; color:inherit;">
+                        <div class="info-icon">📊</div>
+                        <h3>Dashboard</h3>
+                        <p>Clinical Overview at a Glance with key visual metrics and risk summary.</p>
+                    </a>
+                    <a href="/about-ckd" class="info-card" style="text-align:left; text-decoration:none; color:inherit;">
+                        <div class="info-icon">🧠</div>
+                        <h3>Understanding</h3>
+                        <p>Learn CKD basics, stages, symptoms, and why early detection matters.</p>
+                    </a>
+                    <a href="/how-it-works" class="info-card" style="text-align:left; text-decoration:none; color:inherit;">
+                        <div class="info-icon">⚙️</div>
+                        <h3>How It Works</h3>
+                        <p>Step-by-step ML pipeline from data collection to prediction output.</p>
+                    </a>
                 </div>
             </div>
         </section>
@@ -523,39 +271,63 @@
                     <p class="score-caption" id="score-caption">Calculating...</p>
                 </div>
             </div>
-            <!-- Gauge + Probability -->
-            <div class="results-row">
-                <div class="result-card">
-                    <h3>⚡ Risk Gauge</h3>
+            <!-- Gauge + Probability Dashboard -->
+            <div class="results-row dashboard-row">
+                <div class="result-card result-card-gauge">
+                    <h3>⚡ Kidney Disease Risk</h3>
                     <div class="gauge-container">
-                        <div class="gauge-body">
-                            <div class="gauge-fill"></div>
-                            <div class="gauge-cover"></div>
-                            <div class="gauge-needle" id="gauge-needle"></div>
-                            <div class="gauge-center-dot"></div>
-                        </div>
-                        <div class="gauge-labels"><span class="g-low">Low</span><span class="g-mod">Moderate</span><span
-                                class="g-high">High</span></div>
+                        <svg class="risk-gauge" viewBox="0 0 240 150" aria-label="Kidney disease risk gauge">
+                            <path class="risk-gauge-bg" d="M20 130 A100 100 0 0 1 220 130"></path>
+                            <path class="risk-gauge-fill" id="risk-gauge-fill" d="M20 130 A100 100 0 0 1 220 130"></path>
+                        </svg>
                         <div class="gauge-value" id="gauge-value">0%</div>
+                        <div class="gauge-sub" id="gauge-sub">Calculating...</div>
+                        <div class="gauge-thresholds">
+                            <span class="g-low">Low</span>
+                            <span class="g-mod">Moderate</span>
+                            <span class="g-high">High</span>
+                        </div>
                     </div>
                 </div>
-                <div class="result-card">
-                    <h3>📊 Probability Breakdown</h3>
-                    <div class="prob-bars">
-                        <div class="prob-item">
-                            <div class="prob-header"><span>CKD Risk</span><span id="prob-ckd-val">0%</span></div>
-                            <div class="prob-track">
-                                <div class="prob-fill ckd-bar" id="prob-ckd-bar"></div>
+
+                <div class="results-right-col">
+                    <div class="result-card">
+                        <h3>📊 Probability Breakdown</h3>
+                        <div class="prob-bars">
+                            <div class="prob-item">
+                                <div class="prob-header"><span>CKD Risk</span><span id="prob-ckd-val">0%</span></div>
+                                <div class="prob-track">
+                                    <div class="prob-fill ckd-bar" id="prob-ckd-bar"></div>
+                                </div>
+                            </div>
+                            <div class="prob-item">
+                                <div class="prob-header"><span>Healthy</span><span id="prob-ok-val">0%</span></div>
+                                <div class="prob-track">
+                                    <div class="prob-fill ok-bar" id="prob-ok-bar"></div>
+                                </div>
                             </div>
                         </div>
-                        <div class="prob-item">
-                            <div class="prob-header"><span>Healthy</span><span id="prob-ok-val">0%</span></div>
-                            <div class="prob-track">
-                                <div class="prob-fill ok-bar" id="prob-ok-bar"></div>
-                            </div>
+                        <div class="risk-level" id="risk-level"></div>
+                    </div>
+
+                    <div class="mini-panel-grid">
+                        <div class="mini-panel">
+                            <h4>Patient Activity</h4>
+                            <ul id="activity-log">
+                                <li>Clinical profile analyzed</li>
+                                <li>Risk score generated</li>
+                                <li>Biomarker review prepared</li>
+                            </ul>
+                        </div>
+                        <div class="mini-panel">
+                            <h4>Recommended Next Steps</h4>
+                            <ul id="next-steps-list">
+                                <li>Review blood pressure trends</li>
+                                <li>Check creatinine and eGFR labs</li>
+                                <li>Consult a healthcare professional</li>
+                            </ul>
                         </div>
                     </div>
-                    <div class="risk-level" id="risk-level"></div>
                 </div>
             </div>
 

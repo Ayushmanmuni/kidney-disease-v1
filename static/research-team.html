@@ -1,0 +1,114 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Research Team — CKD Prediction System</title>
+    <meta name="description" content="Meet the CKD Predict research team, mentor, and technology stack.">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="/static/css/style.css">
+</head>
+
+<body>
+
+    <nav id="navbar">
+        <div class="nav-content">
+            <a href="/" class="logo"><span class="logo-icon">🩺</span><span>CKD Predict</span></a>
+            <div class="nav-links">
+                <a href="/" class="nav-link">Home</a>
+                <a href="/dashboard" class="nav-link">Dashboard</a>
+                <a href="/about-ckd" class="nav-link">Understanding</a>
+                <a href="/how-it-works" class="nav-link">How It Works</a>
+                <a href="/transparency" class="nav-link">Transparency</a>
+                <a href="/research-team" class="nav-link active">Research Team</a>
+                <button id="theme-toggle" aria-label="Toggle dark mode">
+                    <svg class="icon-sun" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                        <circle cx="12" cy="12" r="5" />
+                        <path d="M12 1v2M12 21v2M4.22 4.22l1.42 1.42M18.36 18.36l1.42 1.42M1 12h2M21 12h2M4.22 19.78l1.42-1.42M18.36 5.64l1.42-1.42" />
+                    </svg>
+                    <svg class="icon-moon" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                        <path d="M21 12.79A9 9 0 1111.21 3 7 7 0 0021 12.79z" />
+                    </svg>
+                </button>
+            </div>
+        </div>
+    </nav>
+
+    <main class="page-content">
+        <section class="page-hero">
+            <div class="container">
+                <span class="section-badge">Research Team</span>
+                <h1>3 Members and 1 Mentor</h1>
+                <p class="page-hero-desc">People behind CKD Predict and the technology stack used to build it.</p>
+            </div>
+        </section>
+
+        <section class="section">
+            <div class="container">
+                <div class="team-panel">
+                    <div class="team-members-grid">
+                        <article class="member-card">
+                            <div class="member-avatar">AM</div>
+                            <h3>Ayushman Muni</h3>
+                            <p class="member-role">Project Lead · Developer &amp; ML Engineer</p>
+                        </article>
+                        <article class="member-card">
+                            <div class="member-avatar">JS</div>
+                            <h3>K Jashobant Subudhi</h3>
+                            <p class="member-role">Team Member · Research Contributor</p>
+                        </article>
+                        <article class="member-card">
+                            <div class="member-avatar">PR</div>
+                            <h3>K Parmeswar Rao</h3>
+                            <p class="member-role">Team Member · Research Contributor</p>
+                        </article>
+                    </div>
+
+                    <div class="mentor-card">
+                        <div class="member-avatar mentor-avatar">MK</div>
+                        <div>
+                            <h3>Mentor: K Manoj Kumar</h3>
+                            <p class="member-role">Academic Mentor · Project Guidance &amp; Supervision</p>
+                        </div>
+                    </div>
+
+                    <div class="team-stack">
+                        <h4>Technology Stack</h4>
+                        <div class="stack-tags">
+                            <span>Python</span>
+                            <span>Flask</span>
+                            <span>Scikit-learn</span>
+                            <span>HTML</span>
+                            <span>CSS</span>
+                            <span>JavaScript</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+    </main>
+
+    <footer id="footer">
+        <div class="container">
+            <div class="footer-content">
+                <p>CKD Prediction System — AI-Powered Kidney Disease Risk Assessment</p>
+                <p class="footer-sub">Dataset: <a href="https://archive.ics.uci.edu/ml/datasets/chronic_kidney_disease" target="_blank" rel="noopener">UCI ML Repository</a> · Model: Random Forest · Python + Flask</p>
+            </div>
+        </div>
+    </footer>
+
+    <script>
+        (function() {
+            const saved = localStorage.getItem("ckd-theme");
+            if (saved === "dark") document.documentElement.setAttribute("data-theme", "dark");
+            document.getElementById("theme-toggle").addEventListener("click", () => {
+                const isDark = document.documentElement.getAttribute("data-theme") === "dark";
+                document.documentElement.setAttribute("data-theme", isDark ? "light" : "dark");
+                localStorage.setItem("ckd-theme", isDark ? "light" : "dark");
+            });
+        })();
+    </script>
+</body>
+
+</html>

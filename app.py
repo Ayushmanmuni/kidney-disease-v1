@@ -205,9 +205,24 @@ def about_ckd():
     return send_from_directory('static', 'about-ckd.html')
 
 
+@app.route("/dashboard")
+def dashboard_page():
+    return send_from_directory('static', 'dashboard.html')
+
+
 @app.route("/how-it-works")
 def how_it_works():
     return send_from_directory('static', 'how-it-works.html')
+
+
+@app.route("/transparency")
+def transparency_page():
+    return send_from_directory('static', 'transparency.html')
+
+
+@app.route("/research-team")
+def research_team_page():
+    return send_from_directory('static', 'research-team.html')
 
 
 @app.route("/research")

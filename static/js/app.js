@@ -210,6 +210,7 @@ let currentStep = 1;
 const totalSteps = 4;
 let currentMode = "";  // "patient" or "doctor"
 let submittedData = {};
+const LAST_RESULT_KEY = "ckd-last-result";
 
 /* ─────────────────────────────────────────────
    3. THEME TOGGLE
@@ -826,11 +827,9 @@ function renderResults(data) {
     ? "The model indicates a high probability of Chronic Kidney Disease. Please consult a healthcare professional."
     : "The model indicates low risk of Chronic Kidney Disease. Maintain regular health checkups.";
 
-  // Gauge
+  // Gauge (SVG arc for stable rendering)
   setTimeout(() => {
-    const angle = (ckdProb * 180) - 90;
-    document.getElementById("gauge-needle").style.transform = `rotate(${angle}deg)`;
-    document.getElementById("gauge-value").textContent = ckdPct + "%";
+    renderRiskGauge(ckdPct);
   }, 100);
 
   // Probability bars
@@ -858,6 +857,17 @@ function renderResults(data) {
   const healthScore = Math.round((1 - ckdProb) * 100);
   renderHealthScore(healthScore);
 
+  saveLastPredictionSnapshot({
+    prediction: data.prediction,
+    ckdPct,
+    submittedData,
+    timestamp: new Date().toISOString()
+  });
+  updateHomepageDashboard();
+
+  // Dashboard side panels
+  renderDashboardPanels(ckdPct);
+
   // Patient-friendly explanation (patient mode only)
   const explanationCard = document.getElementById("patient-explanation-card");
   if (isPatient && explanationCard) {
@@ -874,6 +884,191 @@ function renderResults(data) {
   if (data.feature_importance) renderImportanceChart(data.feature_importance);
 
   window.scrollTo({ top: 0, behavior: "smooth" });
+}
+
+function saveLastPredictionSnapshot(snapshot) {
+  try {
+    localStorage.setItem(LAST_RESULT_KEY, JSON.stringify(snapshot));
+  } catch (err) {
+    console.warn("[CKD] Could not persist last prediction snapshot:", err);
+  }
+}
+
+function getLastPredictionSnapshot() {
+  try {
+    const raw = localStorage.getItem(LAST_RESULT_KEY);
+    if (!raw) return null;
+    return JSON.parse(raw);
+  } catch (err) {
+    console.warn("[CKD] Could not parse last prediction snapshot:", err);
+    return null;
+  }
+}
+
+function getHomeDashboardModel() {
+  const snap = getLastPredictionSnapshot();
+  if (!snap || !snap.submittedData) {
+    return {
+      ckdPct: 34,
+      prediction: "Not CKD",
+      submittedData: { bp: 80, sc: 1.1, hemo: 14.2, age: 38 },
+      timestamp: null
+    };
+  }
+  return snap;
+}
+
+function estimateEgfr(ageVal, scVal) {
+  const age = Number(ageVal) || 40;
+  const sc = Number(scVal) || 1.0;
+  const estimate = 118 - (age * 0.55) - ((sc - 0.7) * 32);
+  return Math.max(10, Math.min(130, Math.round(estimate)));
+}
+
+function updateHomeGauge(ckdPct) {
+  const value = Math.max(0, Math.min(100, Number(ckdPct) || 0));
+  const gaugeFill = document.getElementById("home-risk-gauge-fill");
+  const gaugeValue = document.getElementById("home-risk-value");
+  const gaugeStatus = document.getElementById("home-risk-status");
+  const chip = document.getElementById("home-risk-chip");
+  const chipTag = document.getElementById("home-risk-chip-tag");
+  const dot = chip ? chip.querySelector(".chip-dot") : null;
+  if (!gaugeFill || !gaugeValue || !gaugeStatus || !chip || !chipTag || !dot) return;
+
+  let color = "#22c55e";
+  let label = "Low Risk";
+  if (value > 30 && value <= 60) {
+    color = "#f59e0b";
+    label = "Moderate Risk";
+  } else if (value > 60) {
+    color = "#ef4444";
+    label = "High Risk";
+  }
+
+  const length = gaugeFill.getTotalLength();
+  gaugeFill.style.strokeDasharray = String(length);
+  gaugeFill.style.strokeDashoffset = String(length * (1 - value / 100));
+  gaugeFill.style.stroke = color;
+  gaugeValue.textContent = `${value}%`;
+  gaugeValue.style.color = color;
+  gaugeStatus.textContent = label;
+  chipTag.textContent = label;
+  dot.style.background = color;
+  chip.style.background = `${color}1a`;
+}
+
+function updateHomeMetricCard(id, valueText, status) {
+  const card = document.getElementById(id);
+  if (!card) return;
+  const valEl = card.querySelector(".home-metric-value");
+  if (valEl) valEl.textContent = valueText;
+  card.classList.remove("state-good", "state-moderate", "state-high");
+  card.classList.add(status);
+}
+
+function updateHomepageDashboard() {
+  const model = getHomeDashboardModel();
+  const data = model.submittedData || {};
+  const bp = Number(data.bp) || 80;
+  const sc = Number(data.sc) || 1.1;
+  const hemo = Number(data.hemo) || 14.2;
+  const age = Number(data.age) || 38;
+  const egfr = estimateEgfr(age, sc);
+
+  updateHomeGauge(model.ckdPct || 0);
+
+  updateHomeMetricCard("home-metric-bp", `${bp} mm/Hg`, bp > 90 ? "state-high" : (bp >= 60 ? "state-good" : "state-moderate"));
+  updateHomeMetricCard("home-metric-creatinine", `${sc.toFixed(1)} mg/dL`, sc > 1.2 ? "state-high" : "state-good");
+  updateHomeMetricCard("home-metric-egfr", `${egfr} mL/min/1.73m²`, egfr < 60 ? "state-high" : (egfr < 90 ? "state-moderate" : "state-good"));
+  updateHomeMetricCard("home-metric-hemo", `${hemo.toFixed(1)} g/dL`, hemo < 12 ? "state-high" : "state-good");
+
+  const tsEl = document.getElementById("home-last-updated");
+  if (tsEl) {
+    if (model.timestamp) {
+      const dt = new Date(model.timestamp);
+      tsEl.textContent = `Updated ${dt.toLocaleString()}`;
+    } else {
+      tsEl.textContent = "Updated with default sample";
+    }
+  }
+
+  const activity = document.getElementById("home-activity");
+  if (activity) {
+    activity.innerHTML = `
+      <li>Prediction result: ${model.prediction || "Not CKD"}</li>
+      <li>Risk score: ${model.ckdPct || 0}%</li>
+      <li>Creatinine captured: ${sc.toFixed(1)} mg/dL</li>`;
+  }
+
+  const next = document.getElementById("home-next-steps");
+  if (next) {
+    if ((model.ckdPct || 0) <= 30) {
+      next.innerHTML = `<li>Continue healthy lifestyle tracking</li><li>Do annual kidney function tests</li><li>Use patient mode for quick re-check</li>`;
+    } else if ((model.ckdPct || 0) <= 60) {
+      next.innerHTML = `<li>Repeat blood pressure and sugar checks</li><li>Order follow-up creatinine and eGFR labs</li><li>Discuss findings with your doctor</li>`;
+    } else {
+      next.innerHTML = `<li>Book clinical consultation soon</li><li>Request full renal panel and urinalysis</li><li>Use doctor mode for deeper feature analysis</li>`;
+    }
+  }
+}
+
+function renderRiskGauge(ckdPct) {
+  const value = Math.max(0, Math.min(100, Number(ckdPct) || 0));
+  const gaugeFill = document.getElementById("risk-gauge-fill");
+  const gaugeValue = document.getElementById("gauge-value");
+  const gaugeSub = document.getElementById("gauge-sub");
+  if (!gaugeFill || !gaugeValue || !gaugeSub) return;
+
+  let color = "#22c55e";
+  let label = "Low Risk";
+  if (value > 30 && value <= 60) {
+    color = "#f59e0b";
+    label = "Moderate Risk";
+  } else if (value > 60) {
+    color = "#ef4444";
+    label = "High Risk";
+  }
+
+  const length = gaugeFill.getTotalLength();
+  gaugeFill.style.strokeDasharray = String(length);
+  gaugeFill.style.strokeDashoffset = String(length * (1 - value / 100));
+  gaugeFill.style.stroke = color;
+  gaugeValue.textContent = `${value}%`;
+  gaugeValue.style.color = color;
+  gaugeSub.textContent = label;
+}
+
+function renderDashboardPanels(ckdPct) {
+  const activity = document.getElementById("activity-log");
+  const steps = document.getElementById("next-steps-list");
+  if (!activity || !steps) return;
+
+  const creatinine = submittedData.sc ? `${submittedData.sc} mg/dL` : "N/A";
+  const bp = submittedData.bp ? `${submittedData.bp} mm/Hg` : "N/A";
+  const hemo = submittedData.hemo ? `${submittedData.hemo} g/dL` : "N/A";
+
+  activity.innerHTML = `
+    <li>Risk score: ${ckdPct}%</li>
+    <li>Creatinine: ${creatinine}</li>
+    <li>Blood pressure: ${bp}</li>
+    <li>Hemoglobin: ${hemo}</li>`;
+
+  if (ckdPct <= 30) {
+    steps.innerHTML = `
+      <li>Maintain hydration and balanced diet</li>
+      <li>Track blood pressure routinely</li>
+      <li>Repeat kidney panel in annual checkup</li>`;
+  } else if (ckdPct <= 60) {
+    steps.innerHTML = `
+      <li>Book a physician follow-up this week</li>
+      <li>Request creatinine, BUN and eGFR labs</li>
+      <li>Reduce salt and monitor glucose closely</li>`;
+  } else {
+    steps.innerHTML = `
+      <li>Seek urgent medical consultation</li>
+      <li>Get full renal profile and urinalysis</li>
+      <li>Discuss nephrology referral with your doctor</li>`;
+  }
 }
 
 /* ─────────────────────────────────────────────
@@ -1052,6 +1247,17 @@ function initEasterEgg() {
   overlay.addEventListener("click", (e) => { if (e.target === overlay) closeModal(); });
 }
 
+function openMode(mode) {
+  if (mode === "patient") {
+    currentMode = "patient";
+    showSection("patient-prediction");
+  } else {
+    currentMode = "doctor";
+    showSection("prediction");
+  }
+  window.scrollTo({ top: 0, behavior: "smooth" });
+}
+
 /* ─────────────────────────────────────────────
    14. INITIALIZATION
    ───────────────────────────────────────────── */
@@ -1082,22 +1288,28 @@ document.addEventListener("DOMContentLoaded", () => {
   const startPatientBtn = document.getElementById("start-patient-btn");
   if (startPatientBtn) {
     startPatientBtn.addEventListener("click", () => {
-      currentMode = "patient";
       console.log("[CKD] Mode selected: Patient Self-Check");
-      showSection("patient-prediction");
-      window.scrollTo({ top: 0, behavior: "smooth" });
+      openMode("patient");
     });
+  }
+
+  const startPatientBtnHome = document.getElementById("start-patient-btn-home");
+  if (startPatientBtnHome) {
+    startPatientBtnHome.addEventListener("click", () => openMode("patient"));
   }
 
   // Mode Selection — Doctor Clinical Mode
   const startDoctorBtn = document.getElementById("start-doctor-btn");
   if (startDoctorBtn) {
     startDoctorBtn.addEventListener("click", () => {
-      currentMode = "doctor";
       console.log("[CKD] Mode selected: Doctor Clinical Mode");
-      showSection("prediction");
-      window.scrollTo({ top: 0, behavior: "smooth" });
+      openMode("doctor");
     });
+  }
+
+  const startDoctorBtnHome = document.getElementById("start-doctor-btn-home");
+  if (startDoctorBtnHome) {
+    startDoctorBtnHome.addEventListener("click", () => openMode("doctor"));
   }
 
   // Patient form: back button
@@ -1118,6 +1330,8 @@ document.addEventListener("DOMContentLoaded", () => {
 
   // Predict again → go back to homepage
   document.getElementById("predict-again-btn").addEventListener("click", () => goHome());
+
+  updateHomepageDashboard();
 
   console.log("[CKD] Initialization complete.");
 });
