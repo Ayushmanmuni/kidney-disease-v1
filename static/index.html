@@ -6,10 +6,11 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>CKD Prediction System — Chronic Kidney Disease Risk Assessment</title>
     <meta name="description"
-        content="AI-powered Chronic Kidney Disease prediction system using Random Forest ML model trained on UCI CKD dataset with 24 clinical parameters.">
+        content="Advanced Chronic Kidney Disease prediction system using Random Forest ML model trained on UCI CKD dataset with 24 clinical parameters.">
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&display=swap"
         rel="stylesheet">
     <link rel="stylesheet" href="/static/css/style.css">
+    <script src="/static/js/i18n.js"></script>
 </head>
 
 <body>
@@ -19,13 +20,16 @@
         <div class="nav-content">
             <a href="#" class="logo" onclick="goHome();return false"><span class="logo-icon">🩺</span><span>CKD
                     Predict</span></a>
+            <button id="mobile-menu-toggle" class="mobile-menu-toggle" aria-label="Open navigation menu" aria-controls="mobile-menu-panel" aria-expanded="false">
+                <span></span>
+                <span></span>
+                <span></span>
+            </button>
             <div class="nav-links">
-                <a href="/" class="nav-link active">Home</a>
-                <a href="/dashboard" class="nav-link">Dashboard</a>
-                <a href="/about-ckd" class="nav-link">Understanding</a>
-                <a href="/how-it-works" class="nav-link">How It Works</a>
-                <a href="/transparency" class="nav-link">Transparency</a>
-                <a href="/research-team" class="nav-link">Research Team</a>
+                <a href="/" class="nav-link active" data-i18n="nav.home">Home</a>
+                <a href="/dashboard" class="nav-link" data-i18n="nav.dashboard">Dashboard</a>
+                <a href="/about-ckd" class="nav-link" data-i18n="nav.about">About CKD</a>
+                <a href="/how-it-works" class="nav-link" data-i18n="nav.howItWorks">How It Works</a>
                 <button id="theme-toggle" aria-label="Toggle dark mode">
                     <svg class="icon-sun" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor"
                         stroke-width="2">
@@ -38,9 +42,22 @@
                         <path d="M21 12.79A9 9 0 1111.21 3 7 7 0 0021 12.79z" />
                     </svg>
                 </button>
+                <!-- Profile Avatar injected via app.js -->
+                <div id="nav-auth-container"></div>
             </div>
         </div>
     </nav>
+
+    <div id="mobile-menu-overlay" class="mobile-menu-overlay" aria-hidden="true"></div>
+    <aside id="mobile-menu-panel" class="mobile-menu-panel" aria-hidden="true">
+        <a href="/" class="mobile-menu-link">Home</a>
+        <a href="/dashboard" class="mobile-menu-link">Dashboard</a>
+        <a href="/about-ckd" class="mobile-menu-link">About CKD</a>
+        <a href="/how-it-works" class="mobile-menu-link">How It Works</a>
+        <a href="/transparency" class="mobile-menu-link">Transparency</a>
+        <a href="/research-team" class="mobile-menu-link">Research Team</a>
+        <a href="/login" class="mobile-menu-link mobile-menu-link-cta">Login</a>
+    </aside>
 
     <!-- ═══════════ HOMEPAGE ═══════════ -->
     <div id="homepage">
@@ -49,53 +66,31 @@
         <section id="hero">
             <div class="container hero-grid">
                 <div class="hero-content">
-                    <div class="hero-badge">🤖 AI-Powered Medical Research Platform</div>
+                    <div class="hero-badge">🤖 Advanced CKD Screening · Random Forest ML Model</div>
                     <h1>Chronic Kidney Disease<br><span class="gradient-text">Prediction System</span></h1>
-                    <p class="hero-desc">A professional healthcare AI homepage for CKD risk screening research. Explore the project,
-                        methodology, transparency, ethics, and team before starting an assessment.</p>
+                    <p class="hero-desc">ML-powered risk screening using 24 clinical parameters. Trained on real patient
+                        data with cross-validated Random Forest achieving high accuracy.</p>
                     <div class="hero-btns">
                         <button id="start-btn" class="btn btn-primary btn-lg">Start Assessment →</button>
-                        <a href="/how-it-works" class="btn btn-secondary btn-lg">Learn How It Works</a>
+                        <a href="/how-it-works" class="btn btn-secondary btn-lg">How It Works</a>
                     </div>
-                    <div class="hero-links" aria-label="Homepage section navigation">
-                        <a href="/" class="hero-link-chip">Home</a>
-                        <a href="/dashboard" class="hero-link-chip">Dashboard</a>
-                        <a href="/about-ckd" class="hero-link-chip">Understanding</a>
-                        <a href="/transparency" class="hero-link-chip">Transparency</a>
-                        <a href="/research-team" class="hero-link-chip">Team</a>
+                    <div class="hero-stats">
+                        <div class="hero-stat"><span class="hero-stat-num">24</span><span
+                                class="hero-stat-label">Parameters</span></div>
+                        <div class="hero-stat"><span class="hero-stat-num">~100%</span><span
+                                class="hero-stat-label">Accuracy</span></div>
+                        <div class="hero-stat"><span class="hero-stat-num">3</span><span class="hero-stat-label">ML
+                                Models</span></div>
+                        <div class="hero-stat"><span class="hero-stat-num">2</span><span
+                                class="hero-stat-label">Modes</span></div>
                     </div>
                 </div>
             </div>
         </section>
 
-        <section class="section section-alt">
-            <div class="container">
-                <div class="section-header">
-                    <span class="section-badge">Navigate</span>
-                    <h2>Explore the Project</h2>
-                    <p>Learn about kidney disease, understand our machine learning pipeline, or analyze clinical data.</p>
-                </div>
-                <div class="info-cards">
-                    <a href="/dashboard" class="info-card" style="text-align:left; text-decoration:none; color:inherit;">
-                        <div class="info-icon">📊</div>
-                        <h3>Dashboard</h3>
-                        <p>Clinical Overview at a Glance with key visual metrics and risk summary.</p>
-                    </a>
-                    <a href="/about-ckd" class="info-card" style="text-align:left; text-decoration:none; color:inherit;">
-                        <div class="info-icon">🧠</div>
-                        <h3>Understanding</h3>
-                        <p>Learn CKD basics, stages, symptoms, and why early detection matters.</p>
-                    </a>
-                    <a href="/how-it-works" class="info-card" style="text-align:left; text-decoration:none; color:inherit;">
-                        <div class="info-icon">⚙️</div>
-                        <h3>How It Works</h3>
-                        <p>Step-by-step ML pipeline from data collection to prediction output.</p>
-                    </a>
-                </div>
-            </div>
-        </section>
 
-        <!-- CHOOSE ASSESSMENT MODE -->
+
+        <!-- CHOOSE ASSESSMENT MODE + DEMO -->
         <section id="mode-select" class="section">
             <div class="container">
                 <div class="section-header">
@@ -107,11 +102,10 @@
                     <div class="mode-card">
                         <div class="mode-icon">🩺</div>
                         <h3>Patient Self-Check</h3>
-                        <p>Quick and easy kidney health risk assessment using basic health information that you already know.</p>
+                        <p>Quick risk assessment using basic health information that you already know.</p>
                         <ul class="mode-features">
                             <li>✓ Only 8 simple questions</li>
                             <li>✓ No medical jargon</li>
-                            <li>✓ Easy-to-understand results</li>
                             <li>✓ Kidney Risk Score (0–100)</li>
                         </ul>
                         <button class="btn btn-primary btn-lg" id="start-patient-btn">Start Self-Check →</button>
@@ -119,30 +113,23 @@
                     <div class="mode-card">
                         <div class="mode-icon">👨‍⚕️</div>
                         <h3>Doctor Clinical Mode</h3>
-                        <p>Comprehensive clinical analysis using all 24 biomarkers for detailed CKD risk assessment.</p>
+                        <p>Full analysis using all 24 biomarkers for detailed CKD risk assessment.</p>
                         <ul class="mode-features">
                             <li>✓ 24 clinical parameters</li>
-                            <li>✓ Detailed probability breakdown</li>
+                            <li>✓ Probability breakdown</li>
                             <li>✓ Feature importance analysis</li>
-                            <li>✓ Full health parameter review</li>
                         </ul>
-                        <button class="btn btn-primary btn-lg" id="start-doctor-btn">Start Clinical Assessment →</button>
+                        <button class="btn btn-primary btn-lg" id="start-doctor-btn">Start Clinical Assessment
+                            →</button>
                     </div>
                 </div>
-            </div>
-        </section>
-
-        <!-- DEMO / QUICK START -->
-        <section id="demo" class="section section-alt">
-            <div class="container">
-                <div class="demo-box">
-                    <h2>🚀 Try a Demo Prediction</h2>
-                    <p>See the AI system in action with pre-filled sample patient data</p>
+                <!-- DEMO - moved inline -->
+                <div class="demo-box" style="margin-top:36px">
+                    <h3>🔬 Quick Demo — Try with Sample Data</h3>
                     <div class="demo-btns">
-                        <button id="demo-ckd-btn" class="btn btn-danger btn-lg">Demo: CKD Patient</button>
-                        <button id="demo-healthy-btn" class="btn btn-success btn-lg">Demo: Healthy Patient</button>
+                        <button id="demo-ckd-btn" class="btn btn-danger">Demo: CKD Patient</button>
+                        <button id="demo-healthy-btn" class="btn btn-success">Demo: Healthy Patient</button>
                     </div>
-                    <p class="demo-note">Sample data will auto-fill the form and run prediction instantly</p>
                 </div>
             </div>
         </section>
@@ -166,6 +153,7 @@
             </div>
         </section>
 
+
     </div><!-- /homepage -->
 
     <!-- ═══════════ PATIENT MODE FORM ═══════════ -->
@@ -175,8 +163,18 @@
                 <div class="mode-badge-inline">🩺 Patient Self-Check</div>
                 <h2>Quick Kidney Health Assessment</h2>
                 <p>Enter your basic health information below — only 8 simple questions!</p>
+                <div class="form-help-row">
+                    <button type="button" class="btn btn-secondary" id="sample-data-patient-btn">📋 Use Sample
+                        Data</button>
+                    <button type="button" class="btn btn-secondary" id="lab-help-btn-patient" onclick="openLabHelp()">❓
+                        Where to Get These Values?</button>
+                </div>
             </div>
             <form id="patient-form" novalidate>
+                <div class="form-group" style="margin-bottom: 24px;">
+                    <label for="patient-name-patient">Patient Name</label>
+                    <input type="text" id="patient-name-patient" class="form-control" placeholder="e.g. Patient Name">
+                </div>
                 <div class="form-grid" id="patient-fields"></div>
             </form>
             <div class="form-nav" style="margin-top: 32px;">
@@ -196,11 +194,20 @@
                     <div class="progress-fill" id="progress-fill"></div>
                 </div>
             </div>
+            <div class="form-help-row">
+                <button type="button" class="btn btn-secondary" id="sample-data-doctor-btn">📋 Use Sample Data</button>
+                <button type="button" class="btn btn-secondary" onclick="openLabHelp()">❓ Where to Get These
+                    Values?</button>
+            </div>
             <form id="ckd-form" novalidate>
                 <div class="form-step active" id="step-1">
                     <div class="step-header">
                         <h2>💉 Basic Vitals</h2>
                         <p>Patient demographics and vital measurements</p>
+                    </div>
+                    <div class="form-group" style="margin-bottom: 24px; grid-column: 1 / -1;">
+                        <label for="patient-name-doctor">Patient Name</label>
+                        <input type="text" id="patient-name-doctor" class="form-control" placeholder="e.g. Patient Name">
                     </div>
                     <div class="form-grid" id="fields-step-1"></div>
                 </div>
@@ -278,7 +285,8 @@
                     <div class="gauge-container">
                         <svg class="risk-gauge" viewBox="0 0 240 150" aria-label="Kidney disease risk gauge">
                             <path class="risk-gauge-bg" d="M20 130 A100 100 0 0 1 220 130"></path>
-                            <path class="risk-gauge-fill" id="risk-gauge-fill" d="M20 130 A100 100 0 0 1 220 130"></path>
+                            <path class="risk-gauge-fill" id="risk-gauge-fill" d="M20 130 A100 100 0 0 1 220 130">
+                            </path>
                         </svg>
                         <div class="gauge-value" id="gauge-value">0%</div>
                         <div class="gauge-sub" id="gauge-sub">Calculating...</div>
@@ -363,10 +371,10 @@
     <footer id="footer">
         <div class="container">
             <div class="footer-content">
-                <p>CKD Prediction System — AI-Powered Kidney Disease Risk Assessment</p>
+                <p>CKD Prediction System — Advanced Kidney Disease Risk Assessment</p>
                 <p class="footer-sub">Dataset: <a href="https://archive.ics.uci.edu/ml/datasets/chronic_kidney_disease"
                         target="_blank" rel="noopener">UCI ML Repository</a> · Model: Random Forest · Python + Flask</p>
-                <p class="footer-version" id="footer-version" title="Triple-click for developer info">v1.0</p>
+                <p class="footer-version" id="footer-version" title="Triple-click for developer info">v1.6</p>
             </div>
         </div>
     </footer>
@@ -377,12 +385,16 @@
             <button class="modal-close" id="modal-close-btn">&times;</button>
             <div class="dev-header">
                 <div class="dev-avatar">
-                    <img src="https://github.com/Ayushmanmuni/wholesale/blob/main/Gemini_Generated_Image_q1ff22q1ff22q1ff.png?raw=true" style="width:100%;height:100%;border-radius:50%;object-fit:cover;" onerror="this.style.display='none'">
+                    <img src="https://github.com/Ayushmanmuni/wholesale/blob/main/Gemini_Generated_Image_q1ff22q1ff22q1ff.png?raw=true"
+                        style="width:100%;height:100%;border-radius:50%;object-fit:cover;"
+                        onerror="this.style.display='none'">
                 </div>
                 <h2>Developer Info</h2>
             </div>
             <div class="dev-details">
-                <div class="dev-row"><span class="dev-label">Developer</span><a href="https://www.linkedin.com/in/ayushman-muni/" target="_blank" rel="noopener" class="dev-value dev-link">Ayushman Muni</a></div>
+                <div class="dev-row"><span class="dev-label">Developer</span><a
+                        href="https://www.linkedin.com/in/ayushman-muni/" target="_blank" rel="noopener"
+                        class="dev-value dev-link">Ayushman Muni</a></div>
                 <div class="dev-row"><span class="dev-label">Project</span><span class="dev-value">CKD Prediction
                         System</span></div>
                 <div class="dev-row"><span class="dev-label">Type</span><span class="dev-value">College Project
@@ -403,6 +415,53 @@
     <div id="tooltip" class="tooltip-popup" style="display:none">
         <div class="tooltip-content" id="tooltip-content"></div>
     </div>
+
+    <!-- LAB VALUES HELP MODAL -->
+    <div id="lab-help-overlay" class="modal-overlay" style="display:none">
+        <div class="modal-card" style="max-width:580px">
+            <button class="modal-close" onclick="closeLabHelp()">&times;</button>
+            <h2 style="margin-bottom:8px">🩺 Where to Get These Medical Values</h2>
+            <p style="color:var(--text-secondary);margin-bottom:20px;font-size:.92rem">These clinical parameters are
+                obtained from routine medical tests. Here’s where to find each one:</p>
+            <div class="lab-help-list">
+                <div class="lab-help-item">
+                    <span class="lab-help-icon">🩸</span>
+                    <div>
+                        <strong>Blood Test (CBC + Biochemistry)</strong>
+                        <p>Hemoglobin, PCV, WBC, RBC Count, Blood Glucose, Urea, Creatinine, Sodium, Potassium</p>
+                    </div>
+                </div>
+                <div class="lab-help-item">
+                    <span class="lab-help-icon">🧪</span>
+                    <div>
+                        <strong>Urine Test (Urinalysis)</strong>
+                        <p>Specific Gravity, Albumin, Sugar, RBC in Urine, Pus Cells, Pus Cell Clumps, Bacteria</p>
+                    </div>
+                </div>
+                <div class="lab-help-item">
+                    <span class="lab-help-icon">🩺</span>
+                    <div>
+                        <strong>Blood Pressure Monitor</strong>
+                        <p>Diastolic blood pressure — available at any pharmacy, clinic, or home BP device</p>
+                    </div>
+                </div>
+                <div class="lab-help-item">
+                    <span class="lab-help-icon">📝</span>
+                    <div>
+                        <strong>Medical History (Self-Report)</strong>
+                        <p>Hypertension, Diabetes, Heart Disease, Appetite, Swelling, Anemia — from your doctor’s past
+                            diagnosis</p>
+                    </div>
+                </div>
+            </div>
+            <p style="font-size:.84rem;color:var(--text-muted);margin-top:16px">💡 <strong>Tip:</strong> You can ask
+                your doctor for your latest blood test report or request a "Renal Profile" / "Kidney Function Test
+                (KFT)" which covers most of these parameters.</p>
+        </div>
+    </div>
+
+    <!-- FAB removed — redundant with hero + mode select buttons -->\n
+
     <script src="/static/js/app.js"></script>
 </body>
 

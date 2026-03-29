@@ -225,6 +225,82 @@ function initTheme() {
   });
 }
 
+function initMobileMenu() {
+  const toggle = document.getElementById("mobile-menu-toggle");
+  const panel = document.getElementById("mobile-menu-panel");
+  const overlay = document.getElementById("mobile-menu-overlay");
+  if (!toggle || !panel || !overlay) return;
+
+  const closeMenu = () => {
+    panel.classList.remove("open");
+    overlay.classList.remove("active");
+    toggle.classList.remove("active");
+    toggle.setAttribute("aria-expanded", "false");
+    panel.setAttribute("aria-hidden", "true");
+    overlay.setAttribute("aria-hidden", "true");
+    document.body.classList.remove("menu-open");
+  };
+
+  const openMenu = () => {
+    panel.classList.add("open");
+    overlay.classList.add("active");
+    toggle.classList.add("active");
+    toggle.setAttribute("aria-expanded", "true");
+    panel.setAttribute("aria-hidden", "false");
+    overlay.setAttribute("aria-hidden", "false");
+    document.body.classList.add("menu-open");
+  };
+
+  toggle.addEventListener("click", () => {
+    if (panel.classList.contains("open")) closeMenu();
+    else openMenu();
+  });
+
+  overlay.addEventListener("click", closeMenu);
+
+  panel.querySelectorAll("a").forEach(link => {
+    link.addEventListener("click", closeMenu);
+  });
+
+  document.addEventListener("keydown", (e) => {
+    if (e.key === "Escape") closeMenu();
+  });
+
+  window.addEventListener("resize", () => {
+    if (window.innerWidth > 768) closeMenu();
+  });
+}
+
+function initRevealAnimations() {
+  const reduceMotion = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
+  const targets = document.querySelectorAll(
+    ".hero-content, .section-header, .mode-card, .demo-box, .disclaimer-card, .result-card"
+  );
+
+  if (reduceMotion || !("IntersectionObserver" in window)) {
+    targets.forEach(el => el.classList.add("is-visible"));
+    return;
+  }
+
+  targets.forEach((el, idx) => {
+    el.classList.add("reveal");
+    el.style.setProperty("--reveal-delay", `${Math.min(idx * 0.06, 0.32)}s`);
+  });
+
+  const observer = new IntersectionObserver((entries, obs) => {
+    entries.forEach(entry => {
+      if (!entry.isIntersecting) return;
+      entry.target.classList.add("is-visible");
+      obs.unobserve(entry.target);
+    });
+  }, {
+    threshold: 0.15,
+    rootMargin: "0px 0px -12% 0px"
+  });
+
+  targets.forEach(el => observer.observe(el));
+}
+
 /* ─────────────────────────────────────────────
    4. FORM GENERATION (Doctor Mode)
    Dynamically builds form fields from FIELDS config
@@ -457,18 +533,73 @@ function validateStep(stepNum) {
   const container = document.getElementById(`fields-step-${stepNum}`);
   const inputs = container.querySelectorAll("input, select");
   let valid = true;
+
+  // Clear previous errors
+  container.querySelectorAll(".field-error-msg").forEach(e => e.remove());
+  container.querySelectorAll(".field-wrapper.has-error").forEach(w => w.classList.remove("has-error"));
+
   inputs.forEach(input => {
+    const wrapper = input.closest(".field-wrapper");
+    const fieldKey = input.id || input.name;
+    const fieldConfig = FIELDS[fieldKey];
+
     if (input.required && !input.value) {
-      input.style.borderColor = "var(--danger)";
       valid = false;
-      setTimeout(() => { input.style.borderColor = ""; }, 2000);
+      if (wrapper) {
+        wrapper.classList.add("has-error");
+        addFieldError(wrapper, "This field is required");
+      }
+    } else if (input.type === "number" && input.value) {
+      const val = parseFloat(input.value);
+      const min = parseFloat(input.min);
+      const max = parseFloat(input.max);
+      if (!isNaN(min) && val < min) {
+        valid = false;
+        if (wrapper) {
+          wrapper.classList.add("has-error");
+          addFieldError(wrapper, `Value must be at least ${min}`);
+        }
+      } else if (!isNaN(max) && val > max) {
+        valid = false;
+        if (wrapper) {
+          wrapper.classList.add("has-error");
+          addFieldError(wrapper, `Value must be at most ${max}`);
+        }
+      } else if (isNaN(val)) {
+        valid = false;
+        if (wrapper) {
+          wrapper.classList.add("has-error");
+          addFieldError(wrapper, "Please enter a valid number");
+        }
+      }
     }
   });
+
   if (!valid) {
     container.scrollIntoView({ behavior: "smooth", block: "start" });
+    console.warn(`[CKD] Validation failed on step ${stepNum}`);
   }
   return valid;
 }
+
+function addFieldError(wrapper, message) {
+  // Don't add duplicate errors
+  if (wrapper.querySelector(".field-error-msg")) return;
+  const errorEl = document.createElement("span");
+  errorEl.className = "field-error-msg";
+  errorEl.textContent = message;
+  wrapper.appendChild(errorEl);
+}
+
+// Clear errors when user interacts with a field
+document.addEventListener("input", (e) => {
+  const wrapper = e.target.closest(".field-wrapper");
+  if (wrapper && wrapper.classList.contains("has-error")) {
+    wrapper.classList.remove("has-error");
+    const errMsg = wrapper.querySelector(".field-error-msg");
+    if (errMsg) errMsg.remove();
+  }
+});
 
 /* ─────────────────────────────────────────────
    7. TOOLTIP SYSTEM
@@ -573,21 +704,50 @@ function validatePatientForm() {
   const container = document.getElementById("patient-fields");
   const inputs = container.querySelectorAll("input[type='number']");
   let valid = true;
+
+  // Clear previous errors
+  container.querySelectorAll(".field-error-msg").forEach(e => e.remove());
+  container.querySelectorAll(".field-wrapper.has-error").forEach(w => w.classList.remove("has-error"));
+
   inputs.forEach(input => {
+    const wrapper = input.closest(".field-wrapper");
     if (input.required && !input.value) {
-      input.style.borderColor = "var(--danger)";
       valid = false;
-      setTimeout(() => { input.style.borderColor = ""; }, 2000);
+      if (wrapper) {
+        wrapper.classList.add("has-error");
+        addFieldError(wrapper, "This field is required");
+      }
+    } else if (input.value) {
+      const val = parseFloat(input.value);
+      const min = parseFloat(input.min);
+      const max = parseFloat(input.max);
+      if (!isNaN(min) && val < min) {
+        valid = false;
+        if (wrapper) {
+          wrapper.classList.add("has-error");
+          addFieldError(wrapper, `Value must be at least ${min}`);
+        }
+      } else if (!isNaN(max) && val > max) {
+        valid = false;
+        if (wrapper) {
+          wrapper.classList.add("has-error");
+          addFieldError(wrapper, `Value must be at most ${max}`);
+        }
+      }
     }
   });
   if (!valid) {
     container.scrollIntoView({ behavior: "smooth", block: "start" });
+    console.warn("[CKD] Patient form validation failed");
   }
   return valid;
 }
 
 async function submitForm() {
   const data = collectFormData();
+  const pName = document.getElementById("patient-name-doctor");
+  if (pName && pName.value.trim()) data.patient_name = pName.value.trim();
+  
   submittedData = data;
   console.log("[CKD] Submitting doctor mode data to /predict...");
 
@@ -632,6 +792,10 @@ async function submitPatientForm() {
 
   const patientData = collectPatientData();
   const fullPayload = buildPatientPayload(patientData);
+  
+  const pName = document.getElementById("patient-name-patient");
+  if (pName && pName.value.trim()) fullPayload.patient_name = pName.value.trim();
+
   submittedData = fullPayload;
   console.log("[CKD] Submitting patient mode data to /predict...");
 
@@ -805,6 +969,10 @@ function fillDemoAndSubmit(type) {
    10. RESULTS RENDERING
    ───────────────────────────────────────────── */
 function renderResults(data) {
+  // Clear old result state before rendering new results
+  console.log(`[CKD] Clearing old results and rendering new...`);
+  resetResultsUI();
+
   showSection("results");
 
   const resultsEl = document.getElementById("results");
@@ -818,6 +986,11 @@ function renderResults(data) {
   const ckdPct = Math.round(ckdProb * 100);
 
   console.log(`[CKD] Rendering results: prediction=${data.prediction}, CKD%=${ckdPct}, mode=${currentMode}`);
+
+  // Show API warnings if any
+  if (data.warnings && data.warnings.length > 0) {
+    renderApiWarnings(data.warnings);
+  }
 
   // Main result card
   const hero = document.getElementById("result-hero");
@@ -1147,7 +1320,7 @@ function renderPatientExplanation(ckdPct) {
       </div>`;
   }
 
-  html += `<p class="explanation-note">⚠️ This is an AI screening tool for educational purposes only. It is NOT a medical diagnosis. Always consult a qualified healthcare professional.</p>`;
+  html += `<p class="explanation-note">⚠️ This is an advanced screening tool for educational purposes only. It is NOT a medical diagnosis. Always consult a qualified healthcare professional.</p>`;
   content.innerHTML = html;
 }
 
@@ -1265,6 +1438,8 @@ document.addEventListener("DOMContentLoaded", () => {
   console.log("[CKD] Initializing CKD Prediction System...");
 
   initTheme();
+  initMobileMenu();
+  initRevealAnimations();
   buildProgress();
   buildForm();
   buildPatientForm();
@@ -1331,7 +1506,259 @@ document.addEventListener("DOMContentLoaded", () => {
   // Predict again → go back to homepage
   document.getElementById("predict-again-btn").addEventListener("click", () => goHome());
 
+  // Sample Data buttons
+  const sampleDoctorBtn = document.getElementById("sample-data-doctor-btn");
+  if (sampleDoctorBtn) {
+    sampleDoctorBtn.addEventListener("click", () => fillSampleData("doctor"));
+  }
+  const samplePatientBtn = document.getElementById("sample-data-patient-btn");
+  if (samplePatientBtn) {
+    samplePatientBtn.addEventListener("click", () => fillSampleData("patient"));
+  }
+
   updateHomepageDashboard();
 
+  // FAB visibility toggle on scroll
+  const fab = document.getElementById("fab-predict");
+  if (fab) {
+    window.addEventListener("scroll", () => {
+      const homepage = document.getElementById("homepage");
+      if (homepage && homepage.style.display !== "none") {
+        fab.style.display = window.scrollY > 300 ? "flex" : "none";
+      } else {
+        fab.style.display = "none";
+      }
+    });
+    fab.style.display = "none"; // hidden initially
+  }
+
   console.log("[CKD] Initialization complete.");
+});
+
+/* ─────────────────────────────────────────────
+   15. LAB HELP MODAL CONTROLS
+   ───────────────────────────────────────────── */
+function openLabHelp() {
+  const overlay = document.getElementById("lab-help-overlay");
+  if (overlay) overlay.style.display = "flex";
+}
+
+function closeLabHelp() {
+  const overlay = document.getElementById("lab-help-overlay");
+  if (overlay) overlay.style.display = "none";
+}
+
+// Close lab help on clicking outside
+document.addEventListener("click", (e) => {
+  const overlay = document.getElementById("lab-help-overlay");
+  if (overlay && e.target === overlay) overlay.style.display = "none";
+});
+
+/* ─────────────────────────────────────────────
+   16. SAMPLE DATA FILL
+   ───────────────────────────────────────────── */
+function fillSampleData(mode) {
+  console.log(`[CKD] Filling sample data for ${mode} mode`);
+  if (mode === "doctor") {
+    const data = DEMO_DATA.healthy;
+    for (const [key, val] of Object.entries(data)) {
+      const f = FIELDS[key];
+      if (!f) continue;
+      if (f.type === "toggle") {
+        const group = document.querySelector(`.toggle-group[data-field="${key}"]`);
+        if (group) {
+          group.querySelectorAll(".toggle-btn").forEach(b => {
+            b.classList.toggle("active", b.dataset.value === String(val));
+          });
+        }
+      } else {
+        const el = document.getElementById(key);
+        if (el) {
+          el.value = val;
+          el.dispatchEvent(new Event("input", { bubbles: true }));
+        }
+      }
+    }
+  } else if (mode === "patient") {
+    // Fill patient form with healthy sample data
+    const samplePatient = { age: 35, bp: 75, hemo: 14.5, sc: 0.9, htn: "no", dm: "no", pe: "no", ane: "no" };
+    for (const [key, val] of Object.entries(samplePatient)) {
+      const inputId = `patient-${key}`;
+      if (PATIENT_FIELDS[key]?.type === "toggle") {
+        const group = document.querySelector(`.toggle-group[data-field="${inputId}"]`);
+        if (group) {
+          group.querySelectorAll(".toggle-btn").forEach(b => {
+            b.classList.toggle("active", b.dataset.value === String(val));
+          });
+        }
+      } else {
+        const el = document.getElementById(inputId);
+        if (el) {
+          el.value = val;
+          el.dispatchEvent(new Event("input", { bubbles: true }));
+        }
+      }
+    }
+  }
+}
+
+/* ─────────────────────────────────────────────
+   17. SYSTEM TESTING — RUN TEST CASES
+   ───────────────────────────────────────────── */
+async function runTestCase(type) {
+  const data = DEMO_DATA[type];
+  const actualContainer = document.getElementById(`test-actual-${type}`);
+  const btn = document.getElementById(`run-test-${type}`);
+
+  if (!actualContainer || !btn) return;
+
+  btn.disabled = true;
+  btn.textContent = "⏳ Running...";
+
+  actualContainer.innerHTML = `<span class="test-label">Actual Output:</span><span class="test-value test-val-pending">⏳ Analyzing...</span>`;
+
+  console.log(`[CKD] Running test case: ${type}`);
+
+  try {
+    const resp = await fetch("/predict", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify(data),
+    });
+    const result = await resp.json();
+    console.log(`[CKD] Test case ${type} result:`, result);
+
+    if (result.success) {
+      const prediction = result.prediction;
+      const prob = result.probability || {};
+      const ckdPct = Math.round((prob["CKD"] || 0) * 100);
+      const expected = type === "ckd" ? "CKD" : "Not CKD";
+      const passed = prediction === expected;
+
+      actualContainer.innerHTML = `
+        <span class="test-label">Actual Output:</span>
+        <span class="test-value ${passed ? 'test-val-pass' : 'test-val-fail'}">
+          ${passed ? '✅' : '❌'} ${prediction} (CKD Probability: ${ckdPct}%) — ${passed ? 'PASS' : 'FAIL'}
+        </span>`;
+
+      btn.textContent = passed ? "✅ Test Passed" : "❌ Test Failed";
+      btn.disabled = false;
+    } else {
+      actualContainer.innerHTML = `<span class="test-label">Actual Output:</span><span class="test-value test-val-fail">❌ Error: ${result.error}</span>`;
+      btn.textContent = "❌ Error";
+      btn.disabled = false;
+    }
+  } catch (err) {
+    console.error(`[CKD] Test case ${type} fetch error:`, err);
+    actualContainer.innerHTML = `<span class="test-label">Actual Output:</span><span class="test-value test-val-fail">❌ Connection Error — is the server running?</span>`;
+    btn.textContent = "⚠️ Retry";
+    btn.disabled = false;
+  }
+}
+
+/* ─────────────────────────────────────────────
+   18. RESET RESULTS UI
+   Clears all result state before new render
+   ───────────────────────────────────────────── */
+function resetResultsUI() {
+  // Reset probability bars
+  const ckdBar = document.getElementById("prob-ckd-bar");
+  const okBar = document.getElementById("prob-ok-bar");
+  if (ckdBar) ckdBar.style.width = "0%";
+  if (okBar) okBar.style.width = "0%";
+
+  // Reset gauge
+  const gaugeFill = document.getElementById("risk-gauge-fill");
+  if (gaugeFill) {
+    const length = gaugeFill.getTotalLength ? gaugeFill.getTotalLength() : 314;
+    gaugeFill.style.strokeDashoffset = String(length);
+  }
+
+  // Reset score ring
+  const scoreRing = document.getElementById("score-ring-fill");
+  if (scoreRing) scoreRing.style.strokeDashoffset = "326.7";
+
+  // Remove any previous API warnings
+  document.querySelectorAll(".api-warnings").forEach(el => el.remove());
+
+  // Reset importance chart
+  const impChart = document.getElementById("importance-chart");
+  if (impChart) impChart.innerHTML = "";
+
+  // Reset health grid
+  const healthGrid = document.getElementById("health-grid");
+  if (healthGrid) healthGrid.innerHTML = "";
+}
+
+/* ─────────────────────────────────────────────
+   19. RENDER API WARNINGS
+   Shows auto-fill / edge case warnings in results
+   ───────────────────────────────────────────── */
+function renderApiWarnings(warnings) {
+  if (!warnings || warnings.length === 0) return;
+
+  const container = document.querySelector("#results .container");
+  if (!container) return;
+
+  // Insert warnings at the top of results container
+  const warningDiv = document.createElement("div");
+  warningDiv.className = "api-warnings";
+  warningDiv.innerHTML = `
+    <h4>\u26a0\ufe0f Auto-Fill Notices</h4>
+    <ul>${warnings.map(w => `<li>${w}</li>`).join("")}</ul>`;
+
+  const firstChild = container.firstChild;
+  container.insertBefore(warningDiv, firstChild);
+}
+
+/* ─────────────────────────────────────────────
+   AUTH NAVBAR INJECTION
+   ───────────────────────────────────────────── */
+document.addEventListener('DOMContentLoaded', async () => {
+    const authContainer = document.getElementById("nav-auth-container");
+    if (!authContainer) return;
+
+    try {
+        const res = await fetch('/api/user/status');
+        const data = await res.json();
+        
+        if (data.logged_in) {
+            const avatarHTML = data.user.profile_pic
+                ? `<img src="${data.user.profile_pic}?t=${Date.now()}" style="width:100%;height:100%;border-radius:50%;object-fit:cover;">`
+                : `<span>${data.user.initial}</span>`;
+            authContainer.innerHTML = `
+                <div class="profile-wrapper">
+                    <button class="profile-avatar" id="profile-toggle" aria-label="User menu">
+                        ${avatarHTML}
+                    </button>
+                    <div class="profile-dropdown" id="profile-dropdown">
+                        <div class="profile-dropdown-header">
+                            <strong>${data.user.name}</strong>
+                            <span>${data.user.email}</span>
+                        </div>
+                        <a href="/dashboard" class="profile-dropdown-item">📊 Dashboard & History</a>
+                        <div class="profile-dropdown-divider"></div>
+                        <a href="#" class="profile-dropdown-item" style="color:var(--danger)" onclick="fetch('/api/auth/logout',{method:'POST'}).then(()=>window.location.href='/');return false;">🚪 Logout</a>
+                    </div>
+                </div>
+            `;
+            
+            // Re-bind dropdown toggle logic
+            const toggle = document.getElementById("profile-toggle");
+            const dropdown = document.getElementById("profile-dropdown");
+            toggle.addEventListener("click", (e) => {
+                e.stopPropagation();
+                dropdown.classList.toggle("show");
+            });
+            document.addEventListener("click", (e) => {
+                if (!dropdown.contains(e.target) && e.target !== toggle) {
+                    dropdown.classList.remove("show");
+                }
+            });
+        } else {
+            authContainer.innerHTML = `<a href="/login" class="btn btn-primary" style="padding: 8px 16px; margin-left:12px;">Login</a>`;
+        }
+    } catch (e) {
+        console.error("Auth status error:", e);
+    }
 });
