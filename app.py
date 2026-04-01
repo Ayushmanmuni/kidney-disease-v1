@@ -251,7 +251,12 @@ We create a Flask app with two routes:
 
 app = Flask(__name__, static_folder='static', static_url_path='/static')
 app.secret_key = os.environ.get('SECRET_KEY', 'ckd_super_secret_dev_key')
-app.config['SQLALCHEMY_DATABASE_URI'] = 'sqlite:///ckd_platform.db'
+
+db_url = os.environ.get('DATABASE_URL', 'sqlite:///ckd_platform.db')
+if db_url.startswith("postgres://"):
+    db_url = db_url.replace("postgres://", "postgresql://", 1)
+    
+app.config['SQLALCHEMY_DATABASE_URI'] = db_url
 app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
 
 db = SQLAlchemy(app)

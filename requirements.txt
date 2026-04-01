@@ -4,3 +4,7 @@ numpy
 pandas
 scikit-learn
 gunicorn
+Flask-SQLAlchemy
+Flask-Bcrypt
+Flask-Login
+psycopg2-binary
