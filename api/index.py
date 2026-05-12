@@ -518,3 +518,33 @@ def reply_feedback_report(report_id):
         return jsonify({"success": False, "error": err or "Failed to send reply"}), 400
     supabase.table("feedback_reports").update({"status": "closed"}).eq("id", report_id).execute()
     return jsonify({"success": True, "status": "closed"})
+
+
+# ─────────────────────────────────────────────
+# Vercel: rewrites land on /api/index but WSGI PATH_INFO stays "/api/index".
+# Rewrites pass the real URL path as __vp=... so Flask routing matches.
+# ─────────────────────────────────────────────
+
+def _vercel_path_wsgi(app):
+    from urllib.parse import parse_qsl, unquote, urlencode
+
+    def middleware(environ, start_response):
+        qs = environ.get("QUERY_STRING") or ""
+        new_path = None
+        rest_pairs = []
+        for key, val in parse_qsl(qs, keep_blank_values=True):
+            if key == "__vp":
+                new_path = unquote(val)
+            else:
+                rest_pairs.append((key, val))
+        if new_path:
+            if not new_path.startswith("/"):
+                new_path = "/" + new_path
+            environ["PATH_INFO"] = new_path
+            environ["QUERY_STRING"] = urlencode(rest_pairs) if rest_pairs else ""
+        return app(environ, start_response)
+
+    return middleware
+
+
+app.wsgi_app = _vercel_path_wsgi(app.wsgi_app)

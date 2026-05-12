@@ -1,12 +1,8 @@
 {
   "$schema": "https://openapi.vercel.sh/vercel.json",
+  "cleanUrls": true,
   "rewrites": [
-    { "source": "/predict", "destination": "/api/index" },
-    { "source": "/api/(.*)", "destination": "/api/index" },
-    { "source": "/login", "destination": "/login.html" },
-    { "source": "/signup", "destination": "/signup.html" },
-    { "source": "/dashboard", "destination": "/dashboard.html" },
-    { "source": "/about-ckd", "destination": "/about-ckd.html" },
-    { "source": "/how-it-works", "destination": "/how-it-works.html" }
+    { "source": "/predict", "destination": "/api/index?__vp=/predict" },
+    { "source": "/api/:path*", "destination": "/api/index?__vp=/api/:path*" }
   ]
 }
