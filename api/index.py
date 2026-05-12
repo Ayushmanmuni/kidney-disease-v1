@@ -1,10 +1,9 @@
 """
 ============================================================
-  CKD Prediction – Vercel Serverless API
+  CKD Prediction – Vercel Serverless API (Pure Python)
 ============================================================
-  Adapted for Vercel + Supabase deployment.
-  Original Flask app rewritten to use supabase-py instead
-  of SQLAlchemy, keeping Flask-Login for session auth.
+  Zero heavy dependencies: no scikit-learn, numpy, pandas, scipy.
+  Model loaded from JSON, prediction via pure Python tree traversal.
 ============================================================
 """
 
@@ -12,13 +11,9 @@ import os
 import json
 import smtplib
 import ssl
-import numpy as np
-import pandas as pd
-import joblib
 import bcrypt as bcrypt_lib
 from email.message import EmailMessage
-from datetime import datetime
-from flask import Flask, request, jsonify, session, redirect, url_for
+from flask import Flask, request, jsonify, redirect
 from flask_login import (
     LoginManager, UserMixin,
     login_user, logout_user, login_required, current_user,
@@ -31,10 +26,6 @@ from supabase import create_client
 
 API_DIR = os.path.dirname(os.path.abspath(__file__))
 BASE_DIR = os.path.dirname(API_DIR)
-MODEL_PATH = os.path.join(API_DIR, "best_ckd_model.pkl")
-# Fallback to output/ directory for local dev
-if not os.path.exists(MODEL_PATH):
-    MODEL_PATH = os.path.join(BASE_DIR, "output", "best_ckd_model.pkl")
 
 SUPABASE_URL = os.environ.get("SUPABASE_URL", "")
 SUPABASE_KEY = os.environ.get("SUPABASE_SERVICE_KEY", "")
@@ -48,7 +39,6 @@ SMTP_PASSWORD = os.environ.get("SMTP_PASSWORD", "")
 SMTP_FROM_EMAIL = os.environ.get("SMTP_FROM_EMAIL", SMTP_USERNAME or FEEDBACK_EMAIL_TO)
 ADMIN_EMAIL = os.environ.get("ADMIN_EMAIL", "ayushman.muni.06@gmail.com").strip().lower()
 
-# 24 features in the exact order used during training
 FEATURE_ORDER = [
     "age", "bp", "sg", "al", "su",
     "rbc", "pc", "pcc", "ba",
@@ -58,16 +48,16 @@ FEATURE_ORDER = [
 ]
 
 ENCODING_MAP = {
-    "rbc":   {"normal": 0, "abnormal": 1},
-    "pc":    {"normal": 0, "abnormal": 1},
-    "pcc":   {"present": 1, "notpresent": 0},
-    "ba":    {"present": 1, "notpresent": 0},
-    "htn":   {"yes": 1, "no": 0},
-    "dm":    {"yes": 1, "no": 0},
-    "cad":   {"yes": 1, "no": 0},
+    "rbc": {"normal": 0, "abnormal": 1},
+    "pc": {"normal": 0, "abnormal": 1},
+    "pcc": {"present": 1, "notpresent": 0},
+    "ba": {"present": 1, "notpresent": 0},
+    "htn": {"yes": 1, "no": 0},
+    "dm": {"yes": 1, "no": 0},
+    "cad": {"yes": 1, "no": 0},
     "appet": {"good": 0, "poor": 1},
-    "pe":    {"yes": 1, "no": 0},
-    "ane":   {"yes": 1, "no": 0},
+    "pe": {"yes": 1, "no": 0},
+    "ane": {"yes": 1, "no": 0},
 }
 
 SAFE_DEFAULTS = {
@@ -86,21 +76,63 @@ VALID_RANGES = {
 }
 
 # ─────────────────────────────────────────────
-# 1. Load the Trained Model
+# 1. Load JSON Model + Pure Python Prediction
 # ─────────────────────────────────────────────
 
-model = joblib.load(MODEL_PATH)
+MODEL_JSON_PATH = os.path.join(API_DIR, "model.json")
+with open(MODEL_JSON_PATH, "r") as f:
+    MODEL_DATA = json.load(f)
 
-FEATURE_IMPORTANCES = {}
-if hasattr(model, "feature_importances_"):
-    importances = model.feature_importances_
-    FEATURE_IMPORTANCES = {
-        FEATURE_ORDER[i]: round(float(importances[i]), 4)
-        for i in range(len(FEATURE_ORDER))
-    }
+FEATURE_IMPORTANCES = {
+    FEATURE_ORDER[i]: round(MODEL_DATA["feature_importances"][i], 4)
+    for i in range(len(FEATURE_ORDER))
+}
+
+
+def _traverse_tree(tree, features):
+    """Walk a single decision tree to its leaf and return class counts."""
+    node = 0
+    while tree["cl"][node] != -1:
+        if features[tree["f"][node]] <= tree["t"][node]:
+            node = tree["cl"][node]
+        else:
+            node = tree["cr"][node]
+    return tree["v"][node]
+
+
+def _predict_rf(features_list):
+    """
+    Pure Python Random Forest predict + predict_proba.
+    features_list: list of 24 numeric values in FEATURE_ORDER.
+    Returns (predicted_class, {class_label: probability}).
+    """
+    n_classes = MODEL_DATA["n_classes"]
+    avg_proba = [0.0] * n_classes
+    n_trees = MODEL_DATA["n_estimators"]
+
+    for tree in MODEL_DATA["trees"]:
+        dist = _traverse_tree(tree, features_list)
+        total = sum(dist)
+        if total > 0:
+            for i in range(n_classes):
+                avg_proba[i] += dist[i] / total
+
+    for i in range(n_classes):
+        avg_proba[i] /= n_trees
+
+    pred_idx = avg_proba.index(max(avg_proba))
+    pred_class = MODEL_DATA["classes"][pred_idx]
+
+    prob_dict = {}
+    for i, cls in enumerate(MODEL_DATA["classes"]):
+        label = "CKD" if cls == 1 else "Not CKD"
+        prob_dict[label] = round(avg_proba[i], 4)
+
+    return pred_class, prob_dict
+
 
 # ─────────────────────────────────────────────
-# 2. Prediction Function (unchanged)
+# 2. Feature Processing + Prediction
 # ─────────────────────────────────────────────
 
 def predict_ckd(input_data):
@@ -111,7 +143,7 @@ def predict_ckd(input_data):
         value = input_data.get(feature)
         if value is None or str(value).strip() == "":
             default_val = SAFE_DEFAULTS.get(feature)
-            warnings_list.append(f"'{feature}' was missing — auto-filled with default ({default_val})")
+            warnings_list.append(f"'{feature}' was missing - auto-filled with default ({default_val})")
             value = default_val
 
         if feature in ENCODING_MAP:
@@ -126,36 +158,31 @@ def predict_ckd(input_data):
                     default_val = SAFE_DEFAULTS.get(feature, 0)
                     default_encoded = mapping.get(str(default_val).strip().lower(), list(mapping.values())[0])
                     processed[feature] = default_encoded
-                    warnings_list.append(f"Invalid value '{value}' for '{feature}' — used default ({default_val})")
+                    warnings_list.append(f"Invalid value '{value}' for '{feature}' - used default ({default_val})")
         else:
             try:
                 processed[feature] = float(value)
             except (ValueError, TypeError):
                 default_val = SAFE_DEFAULTS.get(feature, 0)
                 processed[feature] = float(default_val)
-                warnings_list.append(f"Invalid value '{value}' for '{feature}' — used default ({default_val})")
+                warnings_list.append(f"Invalid value '{value}' for '{feature}' - used default ({default_val})")
 
         if feature in VALID_RANGES and feature not in ENCODING_MAP:
             num_val = processed.get(feature)
             if num_val is not None:
                 lo, hi = VALID_RANGES[feature]
                 if num_val < lo or num_val > hi:
-                    warnings_list.append(f"'{feature}' value {num_val} is outside expected range ({lo}–{hi})")
+                    warnings_list.append(f"'{feature}' value {num_val} is outside expected range ({lo}-{hi})")
 
-    df = pd.DataFrame([processed], columns=FEATURE_ORDER)
-    prediction = model.predict(df)[0]
-    label = "CKD" if prediction == 1 else "Not CKD"
-
-    probability = {}
-    if hasattr(model, "predict_proba"):
-        proba = model.predict_proba(df)[0]
-        probability = {"Not CKD": round(float(proba[0]), 4), "CKD": round(float(proba[1]), 4)}
+    features_list = [processed[f] for f in FEATURE_ORDER]
+    pred_class, probability = _predict_rf(features_list)
+    label = "CKD" if pred_class == 1 else "Not CKD"
 
     return {"prediction": label, "probability": probability, "warnings": warnings_list}
 
 
 # ─────────────────────────────────────────────
-# 3. Flask App + Auth (Supabase-backed)
+# 3. Flask App
 # ─────────────────────────────────────────────
 
 app = Flask(__name__)
@@ -167,7 +194,6 @@ login_manager = LoginManager(app)
 
 
 class User(UserMixin):
-    """Lightweight user object for Flask-Login (no SQLAlchemy)."""
     def __init__(self, id, name, email, password, profile_pic=None, created_at=None):
         self.id = id
         self.name = name
@@ -178,15 +204,11 @@ class User(UserMixin):
 
 
 def _row_to_user(row):
-    """Convert a Supabase row dict to a User object."""
     if not row:
         return None
     return User(
-        id=row["id"],
-        name=row["name"],
-        email=row["email"],
-        password=row["password"],
-        profile_pic=row.get("profile_pic"),
+        id=row["id"], name=row["name"], email=row["email"],
+        password=row["password"], profile_pic=row.get("profile_pic"),
         created_at=row.get("created_at"),
     )
 
@@ -204,8 +226,7 @@ def load_user(user_id):
 
 def is_admin_user(user):
     return bool(
-        user
-        and getattr(user, "is_authenticated", False)
+        user and getattr(user, "is_authenticated", False)
         and (user.email or "").strip().lower() == ADMIN_EMAIL
     )
 
@@ -218,25 +239,19 @@ def send_feedback_email(report_dict):
     subject = f"[CKD Feedback] #{report_dict['id']} {report_dict['category'].upper()}"
     body = (
         f"New feedback report received\n\n"
-        f"Report ID: {report_dict['id']}\n"
-        f"Category: {report_dict['category']}\n"
-        f"Status: {report_dict['status']}\n"
-        f"Name: {report_dict.get('name') or 'N/A'}\n"
-        f"Email: {report_dict.get('email') or 'N/A'}\n"
-        f"Page URL: {report_dict.get('page_url') or 'N/A'}\n\n"
-        f"Message:\n{report_dict['message']}\n"
+        f"Report ID: {report_dict['id']}\nCategory: {report_dict['category']}\n"
+        f"Status: {report_dict['status']}\nName: {report_dict.get('name') or 'N/A'}\n"
+        f"Email: {report_dict.get('email') or 'N/A'}\n\nMessage:\n{report_dict['message']}\n"
     )
     msg = EmailMessage()
-    msg["Subject"] = subject
-    msg["From"] = SMTP_FROM_EMAIL
-    msg["To"] = FEEDBACK_EMAIL_TO
+    msg["Subject"], msg["From"], msg["To"] = subject, SMTP_FROM_EMAIL, FEEDBACK_EMAIL_TO
     msg.set_content(body)
     try:
-        context = ssl.create_default_context()
-        with smtplib.SMTP(SMTP_HOST, SMTP_PORT, timeout=20) as server:
-            server.starttls(context=context)
-            server.login(SMTP_USERNAME, SMTP_PASSWORD)
-            server.send_message(msg)
+        ctx = ssl.create_default_context()
+        with smtplib.SMTP(SMTP_HOST, SMTP_PORT, timeout=20) as s:
+            s.starttls(context=ctx)
+            s.login(SMTP_USERNAME, SMTP_PASSWORD)
+            s.send_message(msg)
         return True, None
     except Exception as e:
         return False, str(e)
@@ -251,24 +266,19 @@ def send_feedback_reply_email(report_dict, reply_text):
     subject = f"[CKD Feedback Reply] Report #{report_dict['id']}"
     body = (
         f"Hello {report_dict.get('name') or 'User'},\n\n"
-        f"Thank you for your feedback on CKD Predict.\n"
-        f"Report ID: {report_dict['id']}\n"
-        f"Category: {report_dict['category']}\n\n"
-        f"Our reply:\n{reply_text}\n\n"
-        f"Original message:\n{report_dict['message']}\n\n"
+        f"Thank you for your feedback.\nReport ID: {report_dict['id']}\n\n"
+        f"Our reply:\n{reply_text}\n\nOriginal message:\n{report_dict['message']}\n\n"
         f"Regards,\nCKD Predict Team"
     )
     msg = EmailMessage()
-    msg["Subject"] = subject
-    msg["From"] = SMTP_FROM_EMAIL
-    msg["To"] = recipient
+    msg["Subject"], msg["From"], msg["To"] = subject, SMTP_FROM_EMAIL, recipient
     msg.set_content(body)
     try:
-        context = ssl.create_default_context()
-        with smtplib.SMTP(SMTP_HOST, SMTP_PORT, timeout=20) as server:
-            server.starttls(context=context)
-            server.login(SMTP_USERNAME, SMTP_PASSWORD)
-            server.send_message(msg)
+        ctx = ssl.create_default_context()
+        with smtplib.SMTP(SMTP_HOST, SMTP_PORT, timeout=20) as s:
+            s.starttls(context=ctx)
+            s.login(SMTP_USERNAME, SMTP_PASSWORD)
+            s.send_message(msg)
         return True, None
     except Exception as e:
         return False, str(e)
@@ -284,20 +294,15 @@ def api_signup():
     name = (data.get("name") or "").strip()
     email = (data.get("email") or "").strip()
     password = data.get("password") or ""
-
     if not name or not email or not password:
         return jsonify({"success": False, "error": "Missing fields"}), 400
-
     existing = supabase.table("users").select("id").eq("email", email).execute()
     if existing.data:
         return jsonify({"success": False, "error": "Email already registered"}), 400
-
     hashed_pw = bcrypt_lib.hashpw(password.encode("utf-8"), bcrypt_lib.gensalt()).decode("utf-8")
     result = supabase.table("users").insert({"name": name, "email": email, "password": hashed_pw}).execute()
-
     if result.data:
-        user = _row_to_user(result.data[0])
-        login_user(user)
+        login_user(_row_to_user(result.data[0]))
         return jsonify({"success": True})
     return jsonify({"success": False, "error": "Failed to create account"}), 500
 
@@ -307,15 +312,12 @@ def api_login():
     data = request.get_json() or {}
     email = (data.get("email") or "").strip()
     password = data.get("password") or ""
-
     result = supabase.table("users").select("*").eq("email", email).execute()
     if not result.data:
         return jsonify({"success": False, "error": "Invalid email or password"}), 401
-
     row = result.data[0]
     if bcrypt_lib.checkpw(password.encode("utf-8"), row["password"].encode("utf-8")):
-        user = _row_to_user(row)
-        login_user(user)
+        login_user(_row_to_user(row))
         return jsonify({"success": True})
     return jsonify({"success": False, "error": "Invalid email or password"}), 401
 
@@ -336,8 +338,7 @@ def api_user_status():
         return jsonify({
             "logged_in": True,
             "user": {
-                "name": current_user.name,
-                "email": current_user.email,
+                "name": current_user.name, "email": current_user.email,
                 "initial": current_user.name[0].upper() if current_user.name else "?",
                 "profile_pic": None,
             },
@@ -349,20 +350,14 @@ def api_user_status():
 @login_required
 def api_user_history():
     result = (
-        supabase.table("prediction_history")
-        .select("*")
-        .eq("user_id", current_user.id)
-        .order("timestamp", desc=True)
-        .limit(50)
-        .execute()
+        supabase.table("prediction_history").select("*")
+        .eq("user_id", current_user.id).order("timestamp", desc=True).limit(50).execute()
     )
     history = []
     for h in result.data or []:
         history.append({
-            "id": h["id"],
-            "patient_name": h.get("patient_name") or "Unknown Patient",
-            "result": h["result"],
-            "probability_ckd": h["probability_ckd"],
+            "id": h["id"], "patient_name": h.get("patient_name") or "Unknown Patient",
+            "result": h["result"], "probability_ckd": h["probability_ckd"],
             "input_data": json.loads(h["input_data"]) if h.get("input_data") else None,
             "date": h.get("timestamp", "")[:16].replace("T", " "),
         })
@@ -401,20 +396,16 @@ def api_info():
 def predict():
     if not request.is_json:
         return jsonify({"error": "Request must be JSON. Set Content-Type: application/json"}), 400
-
     patient_data = request.get_json()
     try:
         result = predict_ckd(patient_data)
         response = {
-            "success": True,
-            "prediction": result["prediction"],
-            "probability": result["probability"],
-            "feature_importance": FEATURE_IMPORTANCES,
+            "success": True, "prediction": result["prediction"],
+            "probability": result["probability"], "feature_importance": FEATURE_IMPORTANCES,
             "message": f"The patient is predicted as: {result['prediction']}",
         }
         if result.get("warnings"):
             response["warnings"] = result["warnings"]
-
         if current_user.is_authenticated:
             safe_input = {k: v for k, v in patient_data.items() if k != "patient_name"}
             supabase.table("prediction_history").insert({
@@ -424,7 +415,6 @@ def predict():
                 "probability_ckd": result["probability"].get("CKD", 0.0),
                 "input_data": json.dumps(safe_input),
             }).execute()
-
         return jsonify(response)
     except ValueError as e:
         return jsonify({"success": False, "error": str(e)}), 400
@@ -442,24 +432,20 @@ def submit_feedback():
     message = str(data.get("message", "")).strip()
     if len(message) < 10:
         return jsonify({"success": False, "error": "Please describe the issue in at least 10 characters."}), 400
-
     category = str(data.get("category", "bug")).strip().lower()
     if category not in {"bug", "ui", "feature", "other"}:
         category = "other"
-
     row = {
         "user_id": current_user.id if current_user.is_authenticated else None,
         "name": str(data.get("name", "")).strip()[:100] or None,
         "email": str(data.get("email", "")).strip()[:120] or None,
-        "category": category,
-        "message": message[:4000],
+        "category": category, "message": message[:4000],
         "page_url": str(data.get("page_url", "")).strip()[:500] or request.referrer,
         "user_agent": request.headers.get("User-Agent", "")[:300] or None,
         "status": "open",
     }
     result = supabase.table("feedback_reports").insert(row).execute()
     report = result.data[0] if result.data else row
-
     mail_ok, mail_err = send_feedback_email(report)
     resp = {"success": True, "message": "Thanks! Your feedback has been submitted.", "report_id": report.get("id"), "email_sent": mail_ok}
     if not mail_ok:
@@ -472,7 +458,6 @@ def submit_feedback():
 def list_feedback_reports():
     if not is_admin_user(current_user):
         return jsonify({"success": False, "error": "Admin access required"}), 403
-
     result = supabase.table("feedback_reports").select("*").order("created_at", desc=True).limit(300).execute()
     rows = []
     for r in result.data or []:
@@ -481,11 +466,8 @@ def list_feedback_reports():
             u_res = supabase.table("users").select("name, email").eq("id", r["user_id"]).execute()
             reporter = u_res.data[0] if u_res.data else None
         rows.append({
-            "id": r["id"],
-            "category": r["category"],
-            "status": r["status"],
-            "message": r["message"],
-            "page_url": r.get("page_url"),
+            "id": r["id"], "category": r["category"], "status": r["status"],
+            "message": r["message"], "page_url": r.get("page_url"),
             "created_at": (r.get("created_at") or "")[:16].replace("T", " "),
             "reported_by": {
                 "user_id": r.get("user_id"),
@@ -501,12 +483,10 @@ def list_feedback_reports():
 def update_feedback_status(report_id):
     if not is_admin_user(current_user):
         return jsonify({"success": False, "error": "Admin access required"}), 403
-
     data = request.get_json(silent=True) or {}
     next_status = str(data.get("status", "")).strip().lower()
     if next_status not in {"open", "closed"}:
         return jsonify({"success": False, "error": "Invalid status"}), 400
-
     supabase.table("feedback_reports").update({"status": next_status}).eq("id", report_id).execute()
     return jsonify({"success": True, "status": next_status})
 
@@ -516,7 +496,6 @@ def update_feedback_status(report_id):
 def delete_feedback_report(report_id):
     if not is_admin_user(current_user):
         return jsonify({"success": False, "error": "Admin access required"}), 403
-
     supabase.table("feedback_reports").delete().eq("id", report_id).execute()
     return jsonify({"success": True})
 
@@ -526,20 +505,16 @@ def delete_feedback_report(report_id):
 def reply_feedback_report(report_id):
     if not is_admin_user(current_user):
         return jsonify({"success": False, "error": "Admin access required"}), 403
-
     result = supabase.table("feedback_reports").select("*").eq("id", report_id).execute()
     if not result.data:
         return jsonify({"success": False, "error": "Report not found"}), 404
-
     report = result.data[0]
     data = request.get_json(silent=True) or {}
     reply_text = str(data.get("reply", "")).strip()
     if len(reply_text) < 3:
         return jsonify({"success": False, "error": "Reply is too short"}), 400
-
     ok, err = send_feedback_reply_email(report, reply_text)
     if not ok:
         return jsonify({"success": False, "error": err or "Failed to send reply"}), 400
-
     supabase.table("feedback_reports").update({"status": "closed"}).eq("id", report_id).execute()
     return jsonify({"success": True, "status": "closed"})
