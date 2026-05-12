@@ -87,13 +87,22 @@ VALID_RANGES = {
 # ─────────────────────────────────────────────
 
 MODEL_JSON_PATH = os.path.join(API_DIR, "model.json")
-with open(MODEL_JSON_PATH, "r") as f:
-    MODEL_DATA = json.load(f)
+MODEL_DATA = None
+FEATURE_IMPORTANCES = {}
+_INIT_ERRORS = []
 
-FEATURE_IMPORTANCES = {
-    FEATURE_ORDER[i]: round(MODEL_DATA["feature_importances"][i], 4)
-    for i in range(len(FEATURE_ORDER))
-}
+try:
+    with open(MODEL_JSON_PATH, "r") as f:
+        MODEL_DATA = json.load(f)
+    FEATURE_IMPORTANCES = {
+        FEATURE_ORDER[i]: round(MODEL_DATA["feature_importances"][i], 4)
+        for i in range(len(FEATURE_ORDER))
+    }
+except Exception as e:
+    _INIT_ERRORS.append(f"Model load failed: {e} (path={MODEL_JSON_PATH})")
+
+if not supabase:
+    _INIT_ERRORS.append(f"Supabase not connected (URL={'set' if SUPABASE_URL else 'MISSING'}, KEY={'set' if SUPABASE_KEY else 'MISSING'})")
 
 
 def _traverse_tree(tree, features):
@@ -304,6 +313,22 @@ def serve_home():
         from flask import send_from_directory
         return send_from_directory(public_dir, "index.html")
     return jsonify({"status": "CKD Prediction API is running", "docs": "/api/info"})
+
+
+@app.route("/api/debug")
+def api_debug():
+    """Diagnostic endpoint — shows init status. Remove after debugging."""
+    return jsonify({
+        "model_loaded": MODEL_DATA is not None,
+        "model_path": MODEL_JSON_PATH,
+        "model_exists": os.path.exists(MODEL_JSON_PATH),
+        "supabase_connected": supabase is not None,
+        "supabase_url_set": bool(SUPABASE_URL),
+        "supabase_key_set": bool(SUPABASE_KEY),
+        "api_dir": API_DIR,
+        "api_dir_contents": os.listdir(API_DIR),
+        "init_errors": _INIT_ERRORS,
+    })
 
 @app.route("/api/auth/signup", methods=["POST"])
 def api_signup():
