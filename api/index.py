@@ -304,11 +304,6 @@ def send_feedback_reply_email(report_dict, reply_text):
 # 4. Root + Auth Endpoints
 # ─────────────────────────────────────────────
 
-@app.route("/")
-def serve_home():
-    """Redirect to index.html — Vercel CDN serves the static file."""
-    return redirect("/index.html")
-
 
 @app.route("/api/debug")
 def api_debug():
