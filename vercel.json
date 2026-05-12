@@ -1,22 +1,12 @@
 {
-  "builds": [
-    {
-      "src": "api/index.py",
-      "use": "@vercel/python"
-    }
-  ],
-  "routes": [
-    { "src": "/predict", "dest": "/api/index" },
-    { "src": "/api/(.*)", "dest": "/api/index" },
-    { "src": "/static/(.*)", "dest": "/public/static/$1" },
-    { "src": "/(.*\\.html)", "dest": "/public/$1" },
-    { "src": "/(.*\\.css)", "dest": "/public/$1" },
-    { "src": "/(.*\\.js)", "dest": "/public/$1" },
-    { "src": "/login", "dest": "/public/login.html" },
-    { "src": "/signup", "dest": "/public/signup.html" },
-    { "src": "/dashboard", "dest": "/public/dashboard.html" },
-    { "src": "/about-ckd", "dest": "/public/about-ckd.html" },
-    { "src": "/how-it-works", "dest": "/public/how-it-works.html" },
-    { "src": "^/$", "dest": "/public/index.html" }
+  "$schema": "https://openapi.vercel.sh/vercel.json",
+  "rewrites": [
+    { "source": "/predict", "destination": "/api/index" },
+    { "source": "/api/(.*)", "destination": "/api/index" },
+    { "source": "/login", "destination": "/login.html" },
+    { "source": "/signup", "destination": "/signup.html" },
+    { "source": "/dashboard", "destination": "/dashboard.html" },
+    { "source": "/about-ckd", "destination": "/about-ckd.html" },
+    { "source": "/how-it-works", "destination": "/how-it-works.html" }
   ]
 }
