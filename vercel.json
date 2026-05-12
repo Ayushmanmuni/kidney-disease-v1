@@ -1,21 +1,22 @@
 {
-  "rewrites": [
-    { "source": "/predict", "destination": "/api/index" },
-    { "source": "/api/(.*)", "destination": "/api/index" }
-  ],
-  "functions": {
-    "api/index.py": {
-      "maxDuration": 30,
-      "memory": 1024,
-      "includeFiles": "output/**"
-    }
-  },
-  "headers": [
+  "builds": [
     {
-      "source": "/static/(.*)",
-      "headers": [
-        { "key": "Cache-Control", "value": "public, max-age=31536000, immutable" }
-      ]
+      "src": "api/index.py",
+      "use": "@vercel/python"
     }
+  ],
+  "routes": [
+    { "src": "/predict", "dest": "/api/index" },
+    { "src": "/api/(.*)", "dest": "/api/index" },
+    { "src": "/static/(.*)", "dest": "/public/static/$1" },
+    { "src": "/(.*\\.html)", "dest": "/public/$1" },
+    { "src": "/(.*\\.css)", "dest": "/public/$1" },
+    { "src": "/(.*\\.js)", "dest": "/public/$1" },
+    { "src": "/login", "dest": "/public/login.html" },
+    { "src": "/signup", "dest": "/public/signup.html" },
+    { "src": "/dashboard", "dest": "/public/dashboard.html" },
+    { "src": "/about-ckd", "dest": "/public/about-ckd.html" },
+    { "src": "/how-it-works", "dest": "/public/how-it-works.html" },
+    { "src": "^/$", "dest": "/public/index.html" }
   ]
 }

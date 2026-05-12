@@ -29,8 +29,12 @@ from supabase import create_client
 # 0. Configuration
 # ─────────────────────────────────────────────
 
-BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
-MODEL_PATH = os.path.join(BASE_DIR, "output", "best_ckd_model.pkl")
+API_DIR = os.path.dirname(os.path.abspath(__file__))
+BASE_DIR = os.path.dirname(API_DIR)
+MODEL_PATH = os.path.join(API_DIR, "best_ckd_model.pkl")
+# Fallback to output/ directory for local dev
+if not os.path.exists(MODEL_PATH):
+    MODEL_PATH = os.path.join(BASE_DIR, "output", "best_ckd_model.pkl")
 
 SUPABASE_URL = os.environ.get("SUPABASE_URL", "")
 SUPABASE_KEY = os.environ.get("SUPABASE_SERVICE_KEY", "")
