@@ -1,15 +1,12 @@
 {
   "builds": [
-    { "src": "api/index.py", "use": "@vercel/python" }
+    { "src": "api/index.py", "use": "@vercel/python" },
+    { "src": "public/**", "use": "@vercel/static" }
   ],
   "routes": [
     { "src": "/predict", "dest": "api/index.py" },
     { "src": "/api/(.*)", "dest": "api/index.py" },
     { "src": "/static/(.*)", "dest": "/public/static/$1" },
-    { "src": "/(.*\\.css)", "dest": "/public/$1" },
-    { "src": "/(.*\\.js)", "dest": "/public/$1" },
-    { "src": "/(.*\\.ico)", "dest": "/public/$1" },
-    { "src": "/(.*\\.png)", "dest": "/public/$1" },
     { "src": "/login", "dest": "/public/login.html" },
     { "src": "/signup", "dest": "/public/signup.html" },
     { "src": "/dashboard", "dest": "/public/dashboard.html" },
