@@ -1,0 +1,949 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Dashboard — CKD Prediction System</title>
+    <meta name="description" content="Clinical Overview at a Glance page with CKD prediction dashboard widgets.">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="/static/css/style.css">
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/3.9.1/chart.min.js"></script>
+    <script src="/static/js/i18n.js"></script>
+    <script>
+        (function() {
+            var theme = localStorage.getItem('ckd-theme');
+            if (theme === 'dark') document.documentElement.setAttribute('data-theme', 'dark');
+        })();
+    </script>
+</head>
+
+<body>
+
+    <nav id="navbar">
+        <div class="nav-content">
+            <a href="/" class="logo"><span class="logo-icon">🩺</span><span>CKD Predict</span></a>
+            <button id="mobile-menu-toggle" class="mobile-menu-toggle" aria-label="Open navigation menu" aria-controls="mobile-menu-panel" aria-expanded="false">
+                <span></span>
+                <span></span>
+                <span></span>
+            </button>
+            <div class="nav-links">
+                <a href="/" class="nav-link" data-i18n="nav.home">Home</a>
+                <a href="/dashboard" class="nav-link active" data-i18n="nav.dashboard">Dashboard</a>
+                <a href="/about-ckd" class="nav-link" data-i18n="nav.about">About CKD</a>
+                <a href="/how-it-works" class="nav-link" data-i18n="nav.howItWorks">How It Works</a>
+
+                <button id="theme-toggle" aria-label="Toggle dark mode">
+                    <svg class="icon-sun" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                        <circle cx="12" cy="12" r="5" />
+                        <path d="M12 1v2M12 21v2M4.22 4.22l1.42 1.42M18.36 18.36l1.42 1.42M1 12h2M21 12h2M4.22 19.78l1.42-1.42M18.36 5.64l1.42-1.42" />
+                    </svg>
+                    <svg class="icon-moon" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                        <path d="M21 12.79A9 9 0 1111.21 3 7 7 0 0021 12.79z" />
+                    </svg>
+                </button>
+                <div id="nav-auth-container"></div>
+            </div>
+        </div>
+    </nav>
+
+    <div id="mobile-menu-overlay" class="mobile-menu-overlay" aria-hidden="true"></div>
+    <aside id="mobile-menu-panel" class="mobile-menu-panel" aria-hidden="true">
+        <a href="/" class="mobile-menu-link">Home</a>
+        <a href="/dashboard" class="mobile-menu-link">Dashboard</a>
+        <a href="/about-ckd" class="mobile-menu-link">About CKD</a>
+        <a href="/how-it-works" class="mobile-menu-link">How It Works</a>
+        <a href="/login" class="mobile-menu-link mobile-menu-link-cta">Login</a>
+    </aside>
+
+    <main class="page-content">
+        <section class="page-hero">
+            <div class="container">
+                <span class="section-badge">Live Dashboard</span>
+                <h1 data-i18n="dash.title">Clinical Overview at a Glance</h1>
+                <p class="page-hero-desc" data-i18n="dash.subtitle">This dashboard summarizes key working indicators from the latest CKD prediction session.</p>
+            </div>
+        </section>
+
+        <section class="section dashboard-home-section" style="padding-top: 0;">
+            <div class="container">
+                <div class="home-dash-shell">
+                    <aside class="home-dash-sidebar">
+                        <div class="home-dash-title">CKD Predict</div>
+                        <ul class="home-dash-menu" id="dash-menu">
+                            <li class="active menu-item" data-target="tab-dashboard" data-i18n="dash.dashboard">Dashboard</li>
+                            <li class="menu-item" data-target="tab-patients" data-i18n="dash.patients">Patients</li>
+                            <li class="menu-item" data-target="tab-models" data-i18n="dash.models">Models</li>
+                            <li class="menu-item" data-target="tab-analytics" data-i18n="dash.analytics">Analytics</li>
+                            <li class="menu-item" data-target="tab-reports">Feedback</li>
+                            <li class="menu-item" data-target="tab-settings" data-i18n="dash.settings">Settings</li>
+                        </ul>
+                    </aside>
+
+                    <div class="home-dash-main">
+                        <div id="tab-dashboard" class="dash-pane active-pane">
+                            <div class="home-dash-topbar">
+                            <div>
+                                <strong>Patient: Last Session Snapshot</strong>
+                                <span class="topbar-meta" id="home-last-updated">Updated from latest prediction</span>
+                            </div>
+                            <div class="home-risk-chip" id="home-risk-chip">
+                                <span class="chip-dot"></span>
+                                <span id="home-risk-chip-tag">Moderate Risk</span>
+                            </div>
+                        </div>
+
+                        <div class="home-metrics-grid">
+                            <article class="home-metric-card" id="home-metric-bp">
+                                <h4>Blood Pressure</h4>
+                                <p class="home-metric-value">80 mm/Hg</p>
+                                <svg viewBox="0 0 120 34" class="mini-spark" aria-hidden="true">
+                                    <polyline points="2,28 20,24 38,26 56,18 74,20 92,14 118,16" />
+                                </svg>
+                            </article>
+                            <article class="home-metric-card" id="home-metric-creatinine">
+                                <h4>Creatinine</h4>
+                                <p class="home-metric-value">1.1 mg/dL</p>
+                                <svg viewBox="0 0 120 34" class="mini-spark spark-warn" aria-hidden="true">
+                                    <polyline points="2,20 20,18 38,17 56,14 74,12 92,10 118,8" />
+                                </svg>
+                            </article>
+                            <article class="home-metric-card" id="home-metric-egfr">
+                                <h4>Estimated eGFR</h4>
+                                <p class="home-metric-value">92 mL/min/1.73m²</p>
+                                <svg viewBox="0 0 120 34" class="mini-spark" aria-hidden="true">
+                                    <polyline points="2,12 20,14 38,13 56,15 74,16 92,18 118,20" />
+                                </svg>
+                            </article>
+                            <article class="home-metric-card" id="home-metric-hemo">
+                                <h4>Hemoglobin</h4>
+                                <p class="home-metric-value">14.2 g/dL</p>
+                                <svg viewBox="0 0 120 34" class="mini-spark" aria-hidden="true">
+                                    <polyline points="2,22 20,20 38,19 56,17 74,18 92,16 118,15" />
+                                </svg>
+                            </article>
+                        </div>
+
+                        <div class="home-analytics-grid">
+                            <article class="home-analysis-card">
+                                <h3>Risk Analysis &amp; Prediction</h3>
+                                <div class="home-analysis-inner">
+                                    <div class="home-chart-wrap">
+                                        <svg viewBox="0 0 340 180" class="home-risk-chart" aria-hidden="true">
+                                            <defs>
+                                                <linearGradient id="homeAreaGrad" x1="0" x2="0" y1="0" y2="1">
+                                                    <stop offset="0%" stop-color="rgba(59,130,246,0.40)" />
+                                                    <stop offset="100%" stop-color="rgba(59,130,246,0.00)" />
+                                                </linearGradient>
+                                            </defs>
+                                            <path class="chart-grid" d="M20 150 H320 M20 120 H320 M20 90 H320 M20 60 H320 M20 30 H320" />
+                                            <path id="home-chart-area" class="chart-area" d="M20 150 C70 145 110 120 150 85 C190 52 225 42 265 36 C285 34 300 30 320 24 L320 150 Z" />
+                                            <path id="home-chart-line" class="chart-line" d="M20 150 C70 145 110 120 150 85 C190 52 225 42 265 36 C285 34 300 30 320 24" />
+                                            <circle id="home-chart-point" cx="320" cy="24" r="4" class="chart-point" />
+                                        </svg>
+                                    </div>
+
+                                    <div class="home-mini-gauge">
+                                        <svg viewBox="0 0 220 140" class="home-risk-gauge" aria-label="Homepage risk gauge">
+                                            <path class="home-risk-gauge-bg" d="M20 120 A90 90 0 0 1 200 120"></path>
+                                            <path class="home-risk-gauge-fill" id="home-risk-gauge-fill" d="M20 120 A90 90 0 0 1 200 120"></path>
+                                        </svg>
+                                        <div class="home-risk-value" id="home-risk-value">34%</div>
+                                        <div class="home-risk-status" id="home-risk-status">Moderate Risk</div>
+                                    </div>
+                                </div>
+                            </article>
+
+                            <div class="home-side-stack">
+                                <article class="home-side-card">
+                                    <h4>Patient Activity</h4>
+                                    <ul id="home-activity">
+                                        <li>Prediction model loaded</li>
+                                        <li>Last session synced</li>
+                                        <li>Dashboard ready</li>
+                                    </ul>
+                                </article>
+                                <article class="home-side-card">
+                                    <h4>Recommendation / Next Steps</h4>
+                                    <ul id="home-next-steps">
+                                        <li>Run a fresh assessment</li>
+                                        <li>Review biomarker details</li>
+                                        <li>Use doctor mode for full analysis</li>
+                                    </ul>
+                                </article>
+                            </div>
+                        </div>
+
+                        <div class="home-dash-actions">
+                            <a class="btn btn-primary" href="/">Start Assessment</a>
+                            <a class="btn btn-secondary" href="/how-it-works">View Pipeline</a>
+                        </div>
+                        </div> <!-- end tab-dashboard -->
+
+                        <div id="tab-patients" class="dash-pane" style="display:none; padding: 20px;">
+                            <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px;">
+                                <div>
+                                    <h2>Patient Predictions</h2>
+                                    <p style="color:var(--text-secondary); margin-top:8px;">Manage and view recently assessed patient records.</p>
+                                </div>
+                                <div style="display:flex; gap: 12px;">
+                                    <button class="btn btn-secondary" onclick="loadPatients()">🔄 Refresh</button>
+                                    <button class="btn btn-secondary" onclick="clearAllPatients()" style="color:var(--danger)">🗑️ Clear All</button>
+                                </div>
+                            </div>
+                            <div id="patients-list" style="display: flex; flex-direction: column; gap: 16px;">
+                                <!-- Dynamically populated by JS -->
+                            </div>
+                        </div>
+
+                        <div id="tab-reports" class="dash-pane" style="display:none; padding: 20px;">
+                            <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px; gap:12px; flex-wrap:wrap;">
+                                <div>
+                                    <h2>Feedback Reports</h2>
+                                    <p style="color:var(--text-secondary); margin-top:8px;">See who reported what, including message, type, page, and timestamp.</p>
+                                </div>
+                                <button class="btn btn-secondary" onclick="loadFeedbackReports()">🔄 Refresh</button>
+                            </div>
+                            <div id="reports-list" style="display:flex; flex-direction:column; gap:14px;"></div>
+                        </div>
+
+                        <div id="tab-models" class="dash-pane" style="display:none; padding: 20px;">
+                            <h2>Machine Learning Models</h2>
+                            <p style="color:var(--text-secondary); margin-top:8px;">The CKD Prediction System utilizes an ensemble of trained algorithms.</p>
+                            <div style="display:grid; grid-template-columns: repeat(auto-fit, minmax(250px, 1fr)); gap: 20px; margin-top: 24px;">
+                                <div style="background:var(--bg-card); padding:20px; border-radius:var(--radius-md); border:1px solid var(--primary); box-shadow: 0 4px 12px rgba(59,130,246,0.1);">
+                                    <h3 style="color:var(--primary); margin-bottom:12px;">🌲 Random Forest</h3>
+                                    <p style="font-size:0.9rem; color:var(--text-secondary); margin-bottom:12px;">Active primary classifier. Uses ensemble decision trees to prevent overfitting and improve accuracy.</p>
+                                    <strong>Accuracy: 99%</strong>
+                                </div>
+                                <div style="background:var(--bg-card); padding:20px; border-radius:var(--radius-md); border:1px solid var(--border);">
+                                    <h3 style="margin-bottom:12px;">🌳 Decision Tree</h3>
+                                    <p style="font-size:0.9rem; color:var(--text-secondary); margin-bottom:12px;">Secondary baseline model. Provides high interpretability for feature importance mapping.</p>
+                                    <strong>Accuracy: 96%</strong>
+                                </div>
+                                <div style="background:var(--bg-card); padding:20px; border-radius:var(--radius-md); border:1px solid var(--border);">
+                                    <h3 style="margin-bottom:12px;">📈 Logistic Regression</h3>
+                                    <p style="font-size:0.9rem; color:var(--text-secondary); margin-bottom:12px;">Statistical baseline. Excellent for determining linear probability relationships among clinical variables.</p>
+                                    <strong>Accuracy: 97%</strong>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div id="tab-analytics" class="dash-pane" style="display:none; padding: 20px;">
+                            <div style="display: flex; justify-content: space-between; align-items: center;">
+                                <div>
+                                    <h2>Health Analytics</h2>
+                                    <p style="color:var(--text-secondary); margin-top:8px;">Track patient progression and risk trends over time.</p>
+                                </div>
+                                <button class="btn btn-secondary" onclick="renderAnalyticsChart()">🔄 Refresh Chart</button>
+                            </div>
+                            <div style="margin-top:24px; background:var(--bg-card); padding:20px; border-radius:var(--radius-md); border:1px solid var(--border);">
+                                <canvas id="analytics-chart" style="width:100%; height:300px;"></canvas>
+                            </div>
+                        </div>
+
+                        <div id="tab-settings" class="dash-pane" style="display:none; padding: 20px;">
+                            <h2>Settings & Profile</h2>
+                            <p style="color:var(--text-secondary); margin-top:8px;">Manage your preferences, account details, and family members.</p>
+                            
+                            <div style="display:grid; grid-template-columns: repeat(auto-fit, minmax(300px, 1fr)); gap: 24px; margin-top:24px;">
+                                <!-- Theme & App Settings -->
+                                <div style="background:var(--bg-card); padding:20px; border-radius:var(--radius-md); border:1px solid var(--border);">
+                                    <h3 style="margin-bottom:16px; font-size:1.1rem; border-bottom:1px solid var(--border); padding-bottom:12px;">App Preferences</h3>
+                                    
+                                    <div class="form-group" style="margin-bottom:16px;">
+                                        <label data-i18n="settings.selectTheme">Color Theme</label>
+                                        <select class="form-control" id="settings-theme" onchange="applyThemeSetting(this.value)">
+                                            <option value="light">Light Theme</option>
+                                            <option value="dark">Dark Theme</option>
+                                        </select>
+                                    </div>
+                                    
+                                    <div class="form-group" style="margin-bottom:16px;">
+                                        <label data-i18n="settings.language">Language</label>
+                                        <select class="form-control" id="settings-lang" onchange="CKDi18n.setLang(this.value)">
+                                            <option value="en">English (US)</option>
+                                            <option value="hi">Hindi (हिंदी)</option>
+                                        </select>
+                                    </div>
+                                    
+                                    <div class="form-group" style="display:flex; align-items:center; gap:12px; margin-bottom:16px;">
+                                        <input type="checkbox" id="settings-notif" checked>
+                                        <label for="settings-notif" style="margin:0;" data-i18n="settings.notifications">Enable Email Notifications</label>
+                                    </div>
+                                </div>
+                                
+                                <!-- Profile & Account -->
+                                <div style="background:var(--bg-card); padding:20px; border-radius:var(--radius-md); border:1px solid var(--border);">
+                                    <h3 style="margin-bottom:16px; font-size:1.1rem; border-bottom:1px solid var(--border); padding-bottom:12px;" data-i18n="settings.account">Account Details</h3>
+                                    
+                                    <div class="form-group" style="margin-bottom:16px;">
+                                        <label data-i18n="settings.fullName">Full Name</label>
+                                        <input type="text" class="form-control" id="settings-name" readonly>
+                                    </div>
+                                    
+                                    <div class="form-group" style="margin-bottom:24px;">
+                                        <label data-i18n="settings.email">Email Address</label>
+                                        <input type="email" class="form-control" id="settings-email" readonly>
+                                    </div>
+                                    
+                                    <button class="btn btn-secondary" onclick="window.location.href='/api/auth/logout'" style="width:100%; color:var(--danger); border-color:var(--danger);">🚪 Logout</button>
+                                </div>
+                                
+                                <!-- Profile Picture -->
+                                <div style="background:var(--bg-card); padding:20px; border-radius:var(--radius-md); border:1px solid var(--border); text-align:center;">
+                                    <h3 style="margin-bottom:16px; font-size:1.1rem; border-bottom:1px solid var(--border); padding-bottom:12px;">Profile Picture</h3>
+                                    <div id="avatar-preview" style="width:100px; height:100px; border-radius:50%; background:var(--primary); color:white; display:flex; align-items:center; justify-content:center; font-size:2.5rem; font-weight:700; margin:0 auto 16px; overflow:hidden; border:3px solid var(--border);">
+                                        <span id="avatar-initial">?</span>
+                                    </div>
+                                    <input type="file" id="profile-pic-input" accept="image/*" style="display:none;" onchange="uploadProfilePic(this)">
+                                    <button class="btn btn-secondary" onclick="document.getElementById('profile-pic-input').click()" style="width:100%;">📷 Choose Photo</button>
+                                </div>
+                                
+                                <!-- Family Members -->
+                                <div style="background:var(--bg-card); padding:20px; border-radius:var(--radius-md); border:1px solid var(--border);">
+                                    <h3 style="margin-bottom:16px; font-size:1.1rem; border-bottom:1px solid var(--border); padding-bottom:12px;">Family Members</h3>
+                                    <div id="family-list" style="margin-bottom:16px; display:flex; flex-direction:column; gap:8px;">
+                                        <!-- Users add their own family members -->
+                                    </div>
+                                    <div style="display:flex; gap:8px;">
+                                        <input type="text" id="new-fam-name" class="form-control" placeholder="Name" style="padding:6px; font-size:0.9rem;">
+                                        <input type="text" id="new-fam-rel" class="form-control" placeholder="Relation" style="padding:6px; font-size:0.9rem;">
+                                        <button class="btn btn-primary" style="padding:4px 12px;" onclick="addFamily()">+</button>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+    </main>
+
+    <footer id="footer">
+        <div class="container">
+            <div class="footer-content">
+                <p>CKD Prediction System — Advanced Kidney Disease Risk Assessment</p>
+                <p class="footer-sub">Dataset: <a href="https://archive.ics.uci.edu/ml/datasets/chronic_kidney_disease" target="_blank" rel="noopener">UCI ML Repository</a> · Model: Random Forest · Python + Flask</p>
+            </div>
+        </div>
+    </footer>
+
+    <script>
+        (function() {
+            function gaugeColor(pct) {
+                if (pct <= 30) return { color: "#22c55e", tag: "Low Risk" };
+                if (pct <= 60) return { color: "#f59e0b", tag: "Moderate Risk" };
+                return { color: "#ef4444", tag: "High Risk" };
+            }
+
+            function setText(id, text) {
+                const el = document.getElementById(id);
+                if (el) el.textContent = text;
+            }
+
+            function updateGaugeAndMetrics(ckdPct, data, prediction, timestamp) {
+                const fill = document.getElementById("home-risk-gauge-fill");
+                if (fill) {
+                    const len = fill.getTotalLength();
+                    fill.style.strokeDasharray = String(len);
+                    fill.style.strokeDashoffset = String(len * (1 - ckdPct / 100));
+                }
+
+                const risk = gaugeColor(ckdPct);
+                if (fill) fill.style.stroke = risk.color;
+                setText("home-risk-value", `${ckdPct}%`);
+                setText("home-risk-status", risk.tag);
+                setText("home-risk-chip-tag", risk.tag);
+
+                const dot = document.querySelector(".chip-dot");
+                if (dot) dot.style.background = risk.color;
+
+                const bp = Number(data.bp) || 80;
+                const sc = Number(data.sc) || 1.1;
+                const hemo = Number(data.hemo) || 14.2;
+                const age = Number(data.age) || 38;
+                const egfr = Math.max(10, Math.min(130, Math.round(118 - (age * 0.55) - ((sc - 0.7) * 32))));
+
+                const metricMap = {
+                    "home-metric-bp": `${bp} mm/Hg`,
+                    "home-metric-creatinine": `${sc.toFixed(1)} mg/dL`,
+                    "home-metric-egfr": `${egfr} mL/min/1.73m²`,
+                    "home-metric-hemo": `${hemo.toFixed(1)} g/dL`
+                };
+
+                Object.entries(metricMap).forEach(([id, value]) => {
+                    const card = document.getElementById(id);
+                    if (!card) return;
+                    const valEl = card.querySelector(".home-metric-value");
+                    if (valEl) valEl.textContent = value;
+                });
+
+                if (timestamp) {
+                    const dt = new Date(timestamp);
+                    setText("home-last-updated", `Updated ${dt.toLocaleString()}`);
+                }
+
+                const activity = document.getElementById("home-activity");
+                if (activity) {
+                    activity.innerHTML = `<li>Prediction result: ${prediction || "Not CKD"}</li><li>Risk score: ${ckdPct}%</li><li>Creatinine captured: ${sc.toFixed(1)} mg/dL</li>`;
+                }
+
+                const next = document.getElementById("home-next-steps");
+                if (next) {
+                    if (ckdPct >= 60) {
+                        next.innerHTML = "<li>Consult a nephrologist soon</li><li>Repeat lab tests for confirmation</li><li>Track BP, sugar, and creatinine weekly</li>";
+                    } else if (ckdPct >= 30) {
+                        next.innerHTML = "<li>Schedule routine kidney screening</li><li>Improve hydration and diet</li><li>Use Doctor mode for full 24-feature analysis</li>";
+                    } else {
+                        next.innerHTML = "<li>Maintain healthy lifestyle</li><li>Continue periodic checkups</li><li>Reassess if symptoms appear</li>";
+                    }
+                }
+            }
+
+            function updateHomeRiskChartFromHistory(historyRows) {
+                const area = document.getElementById('home-chart-area');
+                const line = document.getElementById('home-chart-line');
+                const point = document.getElementById('home-chart-point');
+                if (!area || !line || !point || !Array.isArray(historyRows) || historyRows.length === 0) return;
+
+                const recent = historyRows.slice(-8);
+                const minX = 20;
+                const maxX = 320;
+                const baseY = 150;
+                const topY = 20;
+                const stepX = recent.length > 1 ? (maxX - minX) / (recent.length - 1) : 0;
+
+                const pts = recent.map((r, idx) => {
+                    const x = minX + (idx * stepX);
+                    const pct = Math.max(0, Math.min(100, Number(r.probability_ckd || 0) * 100));
+                    const y = baseY - ((baseY - topY) * pct / 100);
+                    return { x: Number(x.toFixed(1)), y: Number(y.toFixed(1)) };
+                });
+
+                const dLine = pts.map((p, i) => `${i === 0 ? 'M' : 'L'}${p.x} ${p.y}`).join(' ');
+                const dArea = `${dLine} L${maxX} ${baseY} L${minX} ${baseY} Z`;
+                line.setAttribute('d', dLine);
+                area.setAttribute('d', dArea);
+                const last = pts[pts.length - 1];
+                point.setAttribute('cx', String(last.x));
+                point.setAttribute('cy', String(last.y));
+            }
+
+            async function loadDashboardSnapshot() {
+                try {
+                    const resp = await fetch('/api/user/history');
+                    const data = await resp.json();
+                    if (resp.ok && data.success && Array.isArray(data.history) && data.history.length > 0) {
+                        const sorted = [...data.history].reverse();
+                        const latest = sorted[sorted.length - 1];
+                        const ckdPct = Math.round((Number(latest.probability_ckd || 0) * 100) * 10) / 10;
+                        const input = latest.input_data || {};
+                        updateGaugeAndMetrics(ckdPct, input, latest.result, latest.date);
+                        updateHomeRiskChartFromHistory(sorted);
+                        return;
+                    }
+                } catch (e) {
+                    // Fall back to local session snapshot when API is unavailable.
+                }
+
+                const snapshotRaw = localStorage.getItem("ckd-last-result");
+                let snapshot = null;
+                try {
+                    snapshot = snapshotRaw ? JSON.parse(snapshotRaw) : null;
+                } catch (e) {
+                    snapshot = null;
+                }
+                const ckdPct = snapshot && Number.isFinite(Number(snapshot.ckdPct)) ? Number(snapshot.ckdPct) : 34;
+                const data = snapshot && snapshot.submittedData ? snapshot.submittedData : { bp: 80, sc: 1.1, hemo: 14.2, age: 38 };
+                updateGaugeAndMetrics(ckdPct, data, snapshot && snapshot.prediction, snapshot && snapshot.timestamp);
+            }
+
+            loadDashboardSnapshot();
+
+            // Tab Switching Logic
+            const menuItems = document.querySelectorAll('.menu-item');
+            const panes = document.querySelectorAll('.dash-pane');
+
+            menuItems.forEach(item => {
+                item.addEventListener('click', () => {
+                    // Remove active class from all menu items
+                    menuItems.forEach(mi => mi.classList.remove('active'));
+                    // Add active class to clicked item (for highlight)
+                    item.classList.add('active');
+
+                    // Hide all panes
+                    panes.forEach(pane => {
+                        pane.style.display = 'none';
+                        pane.style.opacity = '0';
+                    });
+
+                    // Show target pane
+                    const targetId = item.getAttribute('data-target');
+                    const targetPane = document.getElementById(targetId);
+                    if (targetPane) {
+                        targetPane.style.display = 'block';
+                        // Small timeout for smooth fade-in
+                        setTimeout(() => {
+                            targetPane.style.opacity = '1';
+                            targetPane.style.transition = 'opacity 0.3s ease';
+                        }, 50);
+                    }
+                });
+            });
+
+            // --- History Logic ---
+            window.loadPatients = async function() {
+                const list = document.getElementById('patients-list');
+                if (!list) return;
+                list.innerHTML = '<p>Loading...</p>';
+                try {
+                    const resp = await fetch('/api/user/history');
+                    const data = await resp.json();
+                    if (data.success) {
+                        // Cache latest history records for safe lookup by button handlers.
+                        window.historyRecords = Array.isArray(data.history) ? data.history : [];
+                        if (data.history.length === 0) {
+                            list.innerHTML = '<p style="color:var(--text-secondary);">Not checked yet.</p>';
+                            return;
+                        }
+                        list.innerHTML = data.history.map(h => `
+                            <div class="patient-card" style="padding:16px; background:var(--bg-card); border:1px solid var(--border); border-radius:var(--radius-md); display:flex; justify-content:space-between; align-items:center;">
+                                <div>
+                                    <strong style="font-size:1.1rem;">${h.patient_name}</strong>
+                                    <span style="margin-left:8px; padding:2px 8px; border-radius:12px; font-size:0.8rem; background:${h.result.includes('Not')?'rgba(34,197,94,0.1)':'rgba(239,68,68,0.1)'}; color:${h.result.includes('Not')?'#22c55e':'#ef4444'};">${h.result}</span>
+                                    <div style="font-size:0.85rem; color:var(--text-muted); margin-top:4px;">
+                                        Probability: ${(h.probability_ckd * 100).toFixed(1)}% | Date: ${h.date}
+                                    </div>
+                                </div>
+                                <div style="display:flex; gap:8px;">
+                                    <button class="btn btn-secondary" style="padding:4px 12px; font-size:0.85rem;" onclick="printReportById(${h.id})">📄 PDF</button>
+                                    <button class="btn btn-secondary" style="padding:4px 12px; font-size:0.85rem; color:var(--danger);" onclick="deletePatient(${h.id})">🗑️ Delete</button>
+                                </div>
+                            </div>
+                        `).join('');
+                    } else {
+                        list.innerHTML = '<p style="color:var(--danger);">' + (data.error || 'Please log in to view history.') + '</p>';
+                    }
+                } catch (e) {
+                    list.innerHTML = '<p style="color:var(--danger);">Error loading history.</p>';
+                }
+            };
+
+            window.printReportById = function(id) {
+                const records = Array.isArray(window.historyRecords) ? window.historyRecords : [];
+                const record = records.find(r => Number(r.id) === Number(id));
+                if (!record) {
+                    alert('Could not find this report record. Please reload and try again.');
+                    return;
+                }
+                printReport(
+                    record.id,
+                    record.patient_name || 'Unknown',
+                    record.result || 'N/A',
+                    Number(record.probability_ckd || 0),
+                    record.date || '-',
+                    record.input_data || null
+                );
+            };
+
+            window.deletePatient = async function(id) {
+                if (!confirm('Delete this record?')) return;
+                try {
+                    await fetch('/api/user/history/' + id, {method: 'DELETE'});
+                    loadPatients();
+                } catch(e) { alert('Error deleting'); }
+            };
+
+            window.clearAllPatients = async function() {
+                if (!confirm('Are you certain you want to delete ALL prediction history?')) return;
+                try {
+                    await fetch('/api/user/history', {method: 'DELETE'});
+                    loadPatients();
+                } catch(e) { alert('Error clearing'); }
+            };
+
+            window.loadFeedbackReports = async function() {
+                const list = document.getElementById('reports-list');
+                if (!list) return;
+                list.innerHTML = '<p>Loading reports...</p>';
+                try {
+                    const resp = await fetch('/api/feedback/reports');
+                    const data = await resp.json();
+
+                    if (!resp.ok || !data.success) {
+                        list.innerHTML = `<p style="color:var(--danger);">${(data && data.error) || 'Unable to load reports.'}</p>`;
+                        return;
+                    }
+
+                    if (!Array.isArray(data.reports) || data.reports.length === 0) {
+                        list.innerHTML = '<p style="color:var(--text-secondary);">No feedback reports yet.</p>';
+                        return;
+                    }
+
+                    list.innerHTML = data.reports.map(r => {
+                        const senderName = (r.reported_by && r.reported_by.name) ? r.reported_by.name : 'Anonymous';
+                        const senderEmail = (r.reported_by && r.reported_by.email) ? r.reported_by.email : 'Not provided';
+                        const safeMsg = String(r.message || '').replace(/</g, '&lt;').replace(/>/g, '&gt;');
+                        const safeUrl = String(r.page_url || '').replace(/</g, '&lt;').replace(/>/g, '&gt;');
+                        const safeReplyEmail = String(senderEmail || '').replace(/'/g, "\\'");
+                        const closed = String(r.status || '').toLowerCase() === 'closed';
+                        return `
+                            <div style="background:var(--bg-card); border:1px solid var(--border); border-radius:var(--radius-md); padding:16px;">
+                                <div style="display:flex; justify-content:space-between; gap:10px; flex-wrap:wrap; margin-bottom:10px;">
+                                    <div style="display:flex; align-items:center; gap:8px; flex-wrap:wrap;">
+                                        <strong>#${r.id}</strong>
+                                        <span style="padding:2px 8px; border-radius:999px; font-size:0.78rem; background:var(--primary-light); color:var(--primary); text-transform:uppercase;">${r.category}</span>
+                                        <span style="padding:2px 8px; border-radius:999px; font-size:0.78rem; background:var(--bg-primary); color:var(--text-secondary); text-transform:uppercase;">${r.status}</span>
+                                    </div>
+                                    <div style="font-size:0.82rem; color:var(--text-muted);">${r.created_at}</div>
+                                </div>
+                                <div style="font-size:0.9rem; margin-bottom:8px;"><strong>From:</strong> ${senderName} (${senderEmail})</div>
+                                <div style="font-size:0.9rem; margin-bottom:8px;"><strong>Page:</strong> <span style="color:var(--text-secondary);">${safeUrl || 'N/A'}</span></div>
+                                <div style="background:var(--bg-primary); border:1px solid var(--border); border-radius:8px; padding:10px; color:var(--text-primary); white-space:pre-wrap;">${safeMsg}</div>
+                                <div style="display:flex; gap:8px; margin-top:12px; flex-wrap:wrap;">
+                                    <button class="btn btn-secondary" style="padding:6px 12px;" onclick="replyToFeedback(${r.id}, '${safeReplyEmail}')">✉️ Reply</button>
+                                    <button class="btn btn-secondary" style="padding:6px 12px;" onclick="updateFeedbackStatus(${r.id}, '${closed ? 'open' : 'closed'}')">${closed ? '↩️ Reopen' : '✅ Close'}</button>
+                                    <button class="btn btn-secondary" style="padding:6px 12px; color:var(--danger);" onclick="deleteFeedbackReport(${r.id})">🗑️ Delete</button>
+                                </div>
+                            </div>
+                        `;
+                    }).join('');
+                } catch (e) {
+                    list.innerHTML = '<p style="color:var(--danger);">Error loading reports.</p>';
+                }
+            };
+
+            window.updateFeedbackStatus = async function(reportId, status) {
+                try {
+                    const resp = await fetch(`/api/feedback/reports/${reportId}/status`, {
+                        method: 'PATCH',
+                        headers: { 'Content-Type': 'application/json' },
+                        body: JSON.stringify({ status })
+                    });
+                    const data = await resp.json();
+                    if (!resp.ok || !data.success) {
+                        alert((data && data.error) || 'Failed to update status.');
+                        return;
+                    }
+                    loadFeedbackReports();
+                } catch (e) {
+                    alert('Network error while updating status.');
+                }
+            };
+
+            window.deleteFeedbackReport = async function(reportId) {
+                if (!confirm('Delete this feedback report permanently?')) return;
+                try {
+                    const resp = await fetch(`/api/feedback/reports/${reportId}`, { method: 'DELETE' });
+                    const data = await resp.json();
+                    if (!resp.ok || !data.success) {
+                        alert((data && data.error) || 'Failed to delete report.');
+                        return;
+                    }
+                    loadFeedbackReports();
+                } catch (e) {
+                    alert('Network error while deleting report.');
+                }
+            };
+
+            window.replyToFeedback = async function(reportId, reporterEmail) {
+                const hint = reporterEmail && reporterEmail !== 'Not provided' ? ` to ${reporterEmail}` : '';
+                const reply = prompt(`Write your reply${hint}:`);
+                if (!reply) return;
+                try {
+                    const resp = await fetch(`/api/feedback/reports/${reportId}/reply`, {
+                        method: 'POST',
+                        headers: { 'Content-Type': 'application/json' },
+                        body: JSON.stringify({ reply })
+                    });
+                    const data = await resp.json();
+                    if (!resp.ok || !data.success) {
+                        alert((data && data.error) || 'Failed to send reply.');
+                        return;
+                    }
+                    alert('Reply sent and report marked closed.');
+                    loadFeedbackReports();
+                } catch (e) {
+                    alert('Network error while sending reply.');
+                }
+            };
+
+            window.printReport = function(id, name, result, prob, date, inputData) {
+                const printWin = window.open('', '_blank');
+                if (!printWin) { alert("Popup blocked! Please allow popups to generate PDF."); return; }
+                const isSafe = result.includes('Not');
+                const pctCKD = (prob * 100).toFixed(1);
+                const pctNotCKD = ((1 - prob) * 100).toFixed(1);
+
+                // Parameter reference ranges and labels
+                const paramRef = {
+                    age: { label: 'Age', unit: 'years', lo: 1, hi: 90, good: [1, 70] },
+                    bp: { label: 'Blood Pressure', unit: 'mm/Hg', lo: 50, hi: 180, good: [60, 90] },
+                    sg: { label: 'Specific Gravity', unit: '', lo: 1.005, hi: 1.025, good: [1.015, 1.025] },
+                    al: { label: 'Albumin', unit: '', lo: 0, hi: 5, good: [0, 0] },
+                    su: { label: 'Sugar', unit: '', lo: 0, hi: 5, good: [0, 0] },
+                    bgr: { label: 'Blood Glucose', unit: 'mg/dL', lo: 70, hi: 500, good: [70, 140] },
+                    bu: { label: 'Blood Urea', unit: 'mg/dL', lo: 10, hi: 200, good: [7, 20] },
+                    sc: { label: 'Serum Creatinine', unit: 'mg/dL', lo: 0.4, hi: 15, good: [0.6, 1.2] },
+                    sod: { label: 'Sodium', unit: 'mEq/L', lo: 110, hi: 160, good: [136, 145] },
+                    pot: { label: 'Potassium', unit: 'mEq/L', lo: 2.5, hi: 7, good: [3.5, 5.0] },
+                    hemo: { label: 'Hemoglobin', unit: 'g/dL', lo: 3, hi: 18, good: [12.0, 17.5] },
+                    pcv: { label: 'Packed Cell Vol.', unit: '%', lo: 15, hi: 55, good: [36, 50] },
+                    wc: { label: 'White Blood Cells', unit: '/cumm', lo: 2000, hi: 25000, good: [4500, 11000] },
+                    rc: { label: 'Red Blood Cells', unit: 'millions/cmm', lo: 2, hi: 8, good: [4.5, 5.5] }
+                };
+
+                let paramsHTML = '';
+                if (inputData && typeof inputData === 'object') {
+                    const numericKeys = Object.keys(paramRef);
+                    paramsHTML = '<h3 style="margin-top:30px; color:#0f172a;">Input Parameters</h3>';
+                    paramsHTML += '<table style="width:100%; border-collapse:collapse; margin-top:10px; font-size:13px;">';
+                    paramsHTML += '<tr style="background:#f1f5f9;"><th style="text-align:left; padding:8px; border:1px solid #e2e8f0;">Parameter</th><th style="padding:8px; border:1px solid #e2e8f0;">Value</th><th style="padding:8px; border:1px solid #e2e8f0;">Normal Range</th><th style="padding:8px; border:1px solid #e2e8f0;">Status</th></tr>';
+                    numericKeys.forEach(key => {
+                        if (inputData[key] !== undefined && inputData[key] !== null && inputData[key] !== '') {
+                            const ref = paramRef[key];
+                            const val = parseFloat(inputData[key]);
+                            if (isNaN(val)) return;
+                            const inRange = val >= ref.good[0] && val <= ref.good[1];
+                            const statusColor = inRange ? '#22c55e' : '#ef4444';
+                            const statusText = inRange ? '✓ Normal' : '⚠ Abnormal';
+                            paramsHTML += `<tr><td style="padding:8px; border:1px solid #e2e8f0;">${ref.label}</td><td style="padding:8px; border:1px solid #e2e8f0; text-align:center; font-weight:600;">${val} ${ref.unit}</td><td style="padding:8px; border:1px solid #e2e8f0; text-align:center; color:#64748b;">${ref.good[0]}–${ref.good[1]} ${ref.unit}</td><td style="padding:8px; border:1px solid #e2e8f0; text-align:center; color:${statusColor}; font-weight:600;">${statusText}</td></tr>`;
+                        }
+                    });
+                    // Categorical parameters
+                    const catLabels = {rbc:'Red Blood Cells', pc:'Pus Cell', pcc:'Pus Cell Clumps', ba:'Bacteria', htn:'Hypertension', dm:'Diabetes', cad:'Coronary Artery Disease', appet:'Appetite', pe:'Pedal Edema', ane:'Anemia'};
+                    Object.entries(catLabels).forEach(([key, label]) => {
+                        if (inputData[key] !== undefined && inputData[key] !== '') {
+                            const val = String(inputData[key]).toLowerCase();
+                            const isGood = ['normal','no','notpresent','good','0'].includes(val);
+                            paramsHTML += `<tr><td style="padding:8px; border:1px solid #e2e8f0;">${label}</td><td style="padding:8px; border:1px solid #e2e8f0; text-align:center; font-weight:600;">${inputData[key]}</td><td style="padding:8px; border:1px solid #e2e8f0; text-align:center; color:#64748b;">Normal</td><td style="padding:8px; border:1px solid #e2e8f0; text-align:center; color:${isGood ? '#22c55e' : '#ef4444'}; font-weight:600;">${isGood ? '✓ Normal' : '⚠ Abnormal'}</td></tr>`;
+                        }
+                    });
+                    paramsHTML += '</table>';
+                }
+
+                // Simple risk bar chart
+                const chartHTML = `
+                    <h3 style="margin-top:30px; color:#0f172a;">Risk Analysis Chart</h3>
+                    <div style="margin-top:12px; display:flex; gap:12px; align-items:center;">
+                        <div style="flex:1;">
+                            <div style="font-size:12px; color:#64748b; margin-bottom:4px;">CKD Risk: ${pctCKD}%</div>
+                            <div style="height:24px; background:#fee2e2; border-radius:6px; overflow:hidden;"><div style="height:100%; width:${pctCKD}%; background:#ef4444; border-radius:6px;"></div></div>
+                        </div>
+                        <div style="flex:1;">
+                            <div style="font-size:12px; color:#64748b; margin-bottom:4px;">Healthy: ${pctNotCKD}%</div>
+                            <div style="height:24px; background:#dcfce7; border-radius:6px; overflow:hidden;"><div style="height:100%; width:${pctNotCKD}%; background:#22c55e; border-radius:6px;"></div></div>
+                        </div>
+                    </div>
+                `;
+
+                printWin.document.write(`
+                    <html><head><title>Clinical Report - ${name}</title>
+                    <style>
+                        body { font-family: 'Inter', 'Segoe UI', sans-serif; padding: 40px; color: #1e293b; max-width: 800px; margin: 0 auto; line-height: 1.5; }
+                        .header { border-bottom: 2px solid #3b82f6; padding-bottom: 20px; margin-bottom: 30px; display: flex; justify-content: space-between; align-items: flex-end; }
+                        h1 { color: #0f172a; margin: 0; font-size: 24px; }
+                        .meta { color: #64748b; font-size: 14px; margin-top: 8px; }
+                        .result-box { background: ${isSafe ? '#f0fdf4' : '#fef2f2'}; border: 1px solid ${isSafe ? '#bbf7d0' : '#fecaca'}; padding: 20px; border-radius: 8px; margin-bottom: 10px; }
+                        .label { font-size: 12px; text-transform: uppercase; letter-spacing: 0.05em; color: #64748b; }
+                        .value { font-size: 20px; font-weight: 600; color: #0f172a; margin-top: 4px; }
+                        @media print { body { padding: 20px; } }
+                    </style>
+                    </head><body>
+                        <div class="header">
+                            <div>
+                                <h1>🩺 CKD Prediction System</h1>
+                                <div class="meta">Clinical Diagnostic Report</div>
+                            </div>
+                            <div class="meta" style="text-align:right;">Date: ${date}<br>Record #${id}</div>
+                        </div>
+                        <h2>Patient: ${name}</h2>
+                        
+                        <div class="result-box">
+                            <div class="label">Prediction Result</div>
+                            <div class="value">${result}</div>
+                            <div style="margin-top:12px; padding-top:12px; border-top:1px solid ${isSafe ? '#bbf7d0' : '#fecaca'};">
+                                <span class="label">CKD Probability </span>
+                                <span style="font-weight:600; margin-left:8px;">${pctCKD}%</span>
+                            </div>
+                        </div>
+
+                        ${chartHTML}
+                        ${paramsHTML}
+                        
+                        <p style="margin-top:40px; font-size:11px; color:#94a3b8; border-top:1px solid #e2e8f0; padding-top:10px;">
+                            Disclaimer: This report was generated automatically via Machine Learning. It serves as an assistive tool only and is not a substitute for formal medical consultation or clinical laboratory diagnosis.
+                        </p>
+                        <scr`+`ipt>
+                            window.onload = function() { window.print(); setTimeout(()=>window.close(), 500); }
+                        </scr`+`ipt>
+                    </body></html>
+                `);
+                printWin.document.close();
+            };
+
+            window.renderAnalyticsChart = async function() {
+                const ctx = document.getElementById('analytics-chart');
+                if (!ctx) return;
+                
+                try {
+                    const resp = await fetch('/api/user/history');
+                    const data = await resp.json();
+                    if (data.success && data.history.length > 0) {
+                        const sorted = [...data.history].reverse();
+                        const labels = sorted.map(h => h.date.split(' ')[0]);
+                        const probs = sorted.map(h => h.probability_ckd * 100);
+                        
+                        if (window.myTrendChart) window.myTrendChart.destroy();
+                        
+                        window.myTrendChart = new Chart(ctx, {
+                            type: 'line',
+                            data: {
+                                labels: labels,
+                                datasets: [{
+                                    label: 'CKD Probability (%)',
+                                    data: probs,
+                                    borderColor: '#3b82f6',
+                                    backgroundColor: 'rgba(59,130,246,0.1)',
+                                    fill: true,
+                                    tension: 0.4
+                                }]
+                            },
+                            options: {
+                                responsive: true,
+                                maintainAspectRatio: false,
+                                scales: { y: { beginAtZero: true, max: 100 } }
+                            }
+                        });
+                    }
+                } catch (e) { console.error("Chart load failed:", e); }
+            };
+
+            window.addFamily = function() {
+                const n = document.getElementById('new-fam-name').value;
+                const r = document.getElementById('new-fam-rel').value;
+                if (n && r) {
+                    document.getElementById('family-list').insertAdjacentHTML('beforeend', 
+                        `<div style="display:flex; justify-content:space-between; padding:8px 12px; background:var(--bg-input); border-radius:6px; font-size:0.9rem;">
+                            <span>${n}</span> <span style="color:var(--text-muted)">${r}</span>
+                        </div>`
+                    );
+                    document.getElementById('new-fam-name').value = '';
+                    document.getElementById('new-fam-rel').value = '';
+                }
+            };
+
+            window.applyThemeSetting = function(val) {
+                document.documentElement.setAttribute('data-theme', val);
+                localStorage.setItem('ckd-theme', val);
+            };
+
+            window.uploadProfilePic = async function(input) {
+                if (!input.files || !input.files[0]) return;
+                const formData = new FormData();
+                formData.append('file', input.files[0]);
+                try {
+                    const resp = await fetch('/api/user/profile-pic', { method: 'POST', body: formData });
+                    const data = await resp.json();
+                    if (data.success) {
+                        const preview = document.getElementById('avatar-preview');
+                        preview.innerHTML = `<img src="${data.profile_pic}?t=${Date.now()}" style="width:100%;height:100%;object-fit:cover;">`;
+                        // Also update navbar avatar
+                        const navAvatar = document.querySelector('.profile-avatar, #profile-toggle');
+                        if (navAvatar) navAvatar.innerHTML = `<img src="${data.profile_pic}?t=${Date.now()}" style="width:100%;height:100%;border-radius:50%;object-fit:cover;">`;
+                        alert('Profile picture updated!');
+                    } else { alert(data.error || 'Upload failed'); }
+                } catch(e) { alert('Upload error'); }
+            };
+
+            // Setup profile data
+            fetch('/api/user/status').then(r=>r.json()).then(d=>{
+                if (d.logged_in && d.user) {
+                    document.getElementById('settings-name').value = d.user.name;
+                    document.getElementById('settings-email').value = d.user.email;
+
+                    // Set avatar in settings
+                    const avatarPreview = document.getElementById('avatar-preview');
+                    const avatarInitial = document.getElementById('avatar-initial');
+                    if (d.user.profile_pic) {
+                        avatarPreview.innerHTML = `<img src="${d.user.profile_pic}?t=${Date.now()}" style="width:100%;height:100%;object-fit:cover;">`;
+                    } else if (avatarInitial) {
+                        avatarInitial.textContent = d.user.initial || '?';
+                    }
+                    
+                    // Build navbar profile with avatar
+                    const navAuth = document.getElementById('nav-auth-container');
+                    if(navAuth) {
+                        const avatarHTML = d.user.profile_pic
+                            ? `<img src="${d.user.profile_pic}?t=${Date.now()}" style="width:100%;height:100%;border-radius:50%;object-fit:cover;">`
+                            : `<span>${d.user.initial}</span>`;
+                        navAuth.innerHTML = `
+                            <div class="profile-wrapper">
+                                <button class="profile-avatar" id="profile-toggle" aria-label="User menu">
+                                    ${avatarHTML}
+                                </button>
+                                <div class="profile-dropdown" id="profile-dropdown">
+                                    <div class="profile-dropdown-header">
+                                        <strong>${d.user.name}</strong>
+                                        <span>${d.user.email}</span>
+                                    </div>
+                                    <a href="/dashboard" class="profile-dropdown-item">📊 Dashboard & History</a>
+                                    <a href="#" class="profile-dropdown-item" onclick="if(window.openFeedbackWidget){window.openFeedbackWidget();}return false;">📝 Report Issue</a>
+                                    <div class="profile-dropdown-divider"></div>
+                                    <a href="#" class="profile-dropdown-item" style="color:var(--danger)" onclick="fetch('/api/auth/logout',{method:'POST'}).then(()=>window.location.href='/');return false;">🚪 Logout</a>
+                                </div>
+                            </div>
+                        `;
+                        const toggle = document.getElementById("profile-toggle");
+                        const dropdown = document.getElementById("profile-dropdown");
+                        toggle.addEventListener("click", (e) => {
+                            e.stopPropagation();
+                            dropdown.classList.toggle("show");
+                        });
+                        document.addEventListener("click", (e) => {
+                            if (!dropdown.contains(e.target) && e.target !== toggle) {
+                                dropdown.classList.remove("show");
+                            }
+                        });
+                    }
+                } else {
+                    window.location.href = '/';
+                }
+            });
+
+            const selTheme = document.getElementById('settings-theme');
+            if (selTheme) selTheme.value = localStorage.getItem('ckd-theme') === 'dark' ? 'dark' : 'light';
+
+            const selLang = document.getElementById('settings-lang');
+            if (selLang) selLang.value = localStorage.getItem('ckd-lang') || 'en';
+
+            const themeToggleBtn = document.getElementById('theme-toggle');
+            if (themeToggleBtn) {
+                themeToggleBtn.addEventListener('click', () => {
+                    const currentTheme = document.documentElement.getAttribute('data-theme');
+                    applyThemeSetting(currentTheme === 'dark' ? 'light' : 'dark');
+                    if(selTheme) selTheme.value = currentTheme === 'dark' ? 'light' : 'dark';
+                });
+            }
+
+            // Bind load to tab click
+            setTimeout(() => {
+                const tabBtn = document.querySelector('[data-target="tab-patients"]');
+                if (tabBtn) tabBtn.addEventListener('click', loadPatients);
+
+                const reportsBtn = document.querySelector('[data-target="tab-reports"]');
+                if (reportsBtn) reportsBtn.addEventListener('click', loadFeedbackReports);
+
+                const chartBtn = document.querySelector('[data-target="tab-analytics"]');
+                if (chartBtn) chartBtn.addEventListener('click', renderAnalyticsChart);
+            }, 100);
+
+        })();
+    </script>
+    <script src="/static/js/ui-enhancements.js"></script>
+    <script src="/static/js/feedback-widget.js"></script>
+</body>
+
+</html>

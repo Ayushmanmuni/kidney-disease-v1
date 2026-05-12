@@ -1,0 +1,33 @@
+# Python
+__pycache__/
+*.pyc
+*.pyo
+*.egg-info/
+.venv/
+venv/
+env/
+
+# Environment
+.env
+.env.local
+
+# IDE
+.vscode/
+.idea/
+
+# OS
+.DS_Store
+Thumbs.db
+
+# Vercel
+.vercel/
+
+# SQLite (local dev only)
+instance/
+*.db
+
+# Uploads (local dev only)
+static/uploads/*
+public/static/uploads/*
+!static/uploads/.gitkeep
+!public/static/uploads/.gitkeep
