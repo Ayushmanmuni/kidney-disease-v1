@@ -29,7 +29,14 @@ BASE_DIR = os.path.dirname(API_DIR)
 
 SUPABASE_URL = os.environ.get("SUPABASE_URL", "")
 SUPABASE_KEY = os.environ.get("SUPABASE_SERVICE_KEY", "")
-supabase = create_client(SUPABASE_URL, SUPABASE_KEY)
+
+# Graceful init — don't crash function if env vars not yet configured
+supabase = None
+if SUPABASE_URL and SUPABASE_KEY:
+    try:
+        supabase = create_client(SUPABASE_URL, SUPABASE_KEY)
+    except Exception:
+        pass
 
 FEEDBACK_EMAIL_TO = os.environ.get("FEEDBACK_EMAIL_TO", "ayushman.muni.06@gmail.com")
 SMTP_HOST = os.environ.get("SMTP_HOST", "smtp.gmail.com")
@@ -285,8 +292,18 @@ def send_feedback_reply_email(report_dict, reply_text):
 
 
 # ─────────────────────────────────────────────
-# 4. Auth Endpoints
+# 4. Root + Auth Endpoints
 # ─────────────────────────────────────────────
+
+@app.route("/")
+def serve_home():
+    """Serve homepage — fallback if Vercel routes / through Flask."""
+    public_dir = os.path.join(BASE_DIR, "public")
+    index_path = os.path.join(public_dir, "index.html")
+    if os.path.exists(index_path):
+        from flask import send_from_directory
+        return send_from_directory(public_dir, "index.html")
+    return jsonify({"status": "CKD Prediction API is running", "docs": "/api/info"})
 
 @app.route("/api/auth/signup", methods=["POST"])
 def api_signup():
