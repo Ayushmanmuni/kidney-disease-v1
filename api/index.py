@@ -304,6 +304,12 @@ def send_feedback_reply_email(report_dict, reply_text):
 # 4. Root + Auth Endpoints
 # ─────────────────────────────────────────────
 
+@app.route("/")
+def serve_home():
+    """Serve homepage from co-located index.html."""
+    from flask import send_from_directory
+    return send_from_directory(API_DIR, "index.html")
+
 
 @app.route("/api/debug")
 def api_debug():
