@@ -306,13 +306,8 @@ def send_feedback_reply_email(report_dict, reply_text):
 
 @app.route("/")
 def serve_home():
-    """Serve homepage — fallback if Vercel routes / through Flask."""
-    public_dir = os.path.join(BASE_DIR, "public")
-    index_path = os.path.join(public_dir, "index.html")
-    if os.path.exists(index_path):
-        from flask import send_from_directory
-        return send_from_directory(public_dir, "index.html")
-    return jsonify({"status": "CKD Prediction API is running", "docs": "/api/info"})
+    """Redirect to index.html — Vercel CDN serves the static file."""
+    return redirect("/index.html")
 
 
 @app.route("/api/debug")
